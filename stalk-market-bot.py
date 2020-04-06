@@ -1,7 +1,7 @@
-import discord, os, pytz
+import asyncio, discord, os, pytz
 
-from datetime import datetime
-from discord.ext import commands 
+from datetime import datetime, timedelta
+from discord.ext import commands, tasks
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,7 +12,10 @@ bot = commands.Bot(command_prefix='$')
 buy_prices = {}
 sell_prices = {}
 timezone = pytz.timezone('America/Chicago')
+# Change reset time here
+reset_time = 3 # 3 AM
 
+# Bot commands
 @bot.command()
 async def info(ctx):
     await ctx.send("Hi! I'll help you find the best prices for turnips.\n\n\
@@ -51,5 +54,20 @@ async def add(ctx, op: str, price: int):
     sell_prices[ctx.author.name] = price
     current = ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(sell_prices.items(), key=lambda x: x[1], reverse=True))
   await ctx.send('Added {0.author.name}\'s {1} price of {2}.\n\n**{3} Prices**\n{4:>12}'.format(ctx, op, price, op.capitalize(), current))
+
+# Background task to clear prices
+@tasks.loop(hours=24)
+async def reset_prices():
+  buy_prices.clear()
+  sell_prices.clear()
+
+@reset_prices.before_loop
+async def before():
+  tomorrow = datetime.now() + timedelta(days=1)
+  reset = datetime(year=tomorrow.year, month=tomorrow.month, day=tomorrow.day, hour=reset_time, minute=0, second=0)
+  await asyncio.sleep((reset - datetime.now()).seconds)
+  await bot.wait_until_ready()
+
+reset_prices.start()
 
 bot.run(TOKEN)
