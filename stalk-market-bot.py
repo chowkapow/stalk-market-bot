@@ -20,7 +20,7 @@ reset_time = 3 # 3 AM
 @bot.command()
 async def info(ctx):
     await ctx.send("Hi! I'll help you find the best prices for turnips.\n\n\
-      List of commands:\n\
+      **List of commands**\n\
       $info: List commands\n\
       $all: List all buy/sell prices\n\
       $buy: List buy prices only\n\
@@ -39,7 +39,7 @@ async def all(ctx):
 @bot.command()
 async def buy(ctx):
   date = timezone.localize(datetime.now()).strftime("%d/%m %I:%M %p %Z")
-  buy = ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(buy_prices.items(), key=lambda x: x[1]))
+  buy = '**Buy Prices**\n' + ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(buy_prices.items(), key=lambda x: x[1]))
   await ctx.send("Today's date: {0}\n\n{1:>12}".format(date, buy))
 
 @bot.command()
@@ -73,8 +73,8 @@ async def clear(ctx):
 # Background task to clear prices
 @tasks.loop(hours=24)
 async def reset_prices():
-  buy_prices.clear()
-  sell_prices.clear()
+  await buy_prices.clear()
+  await sell_prices.clear()
 
 @reset_prices.before_loop
 async def before():
