@@ -10,7 +10,8 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 bot = commands.Bot(command_prefix='$')
 
 buy_prices = {}
-sell_prices = {}
+sell_morning_prices = {}
+sell_afternoon_prices = {}
 timezone = pytz.timezone('America/Chicago')
 # Change reset time here
 reset_time = 3 # 3 AM
@@ -30,8 +31,9 @@ async def info(ctx):
 async def all(ctx):
   date = timezone.localize(datetime.now()).strftime("%d/%m %I:%M %p %Z")
   buy = '**Buy Prices**\n' + ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(buy_prices.items(), key=lambda x: x[1]))
-  sell = '**Sell Prices**\n' + ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(sell_prices.items(), key=lambda x: x[1], reverse=True))
-  await ctx.send("Today's date: {0}\n\n{1:>12}\n{2:>12}".format(date, buy, sell))
+  sell_m = '**Sell Morning Prices**\n' + ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(sell_morning_prices.items(), key=lambda x: x[1], reverse=True))
+  sell_a = '**Sell Afternoon Prices**\n' + ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(sell_afternoon_prices.items(), key=lambda x: x[1], reverse=True))
+  await ctx.send("Today's date: {0}\n\n{1:>12}\n{2:>12}\n{3:>12}".format(date, buy, sell_m, sell_a))
 
 @bot.command()
 async def buy(ctx):
@@ -42,8 +44,9 @@ async def buy(ctx):
 @bot.command()
 async def sell(ctx):
   date = timezone.localize(datetime.now()).strftime("%d/%m %I:%M %p %Z")
-  sell = ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(sell_prices.items(), key=lambda x: x[1], reverse=True))
-  await ctx.send("Today's date: {0}\n\n{1:>12}".format(date, sell))
+  sell_m = '**Sell Morning Prices**\n' + ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(sell_morning_prices.items(), key=lambda x: x[1], reverse=True))
+  sell_a = '**Sell Afternoon Prices**\n' + ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(sell_afternoon_prices.items(), key=lambda x: x[1], reverse=True))
+  await ctx.send("Today's date: {0}\n\n{1:>12}\n{2:>12}".format(date, sell_m, sell_a))
 
 @bot.command()
 async def add(ctx, op: str, price: int):
@@ -51,8 +54,12 @@ async def add(ctx, op: str, price: int):
     buy_prices[ctx.author.name] = price
     current = ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(buy_prices.items(), key=lambda x: x[1]))
   else:
-    sell_prices[ctx.author.name] = price
-    current = ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(sell_prices.items(), key=lambda x: x[1], reverse=True))
+    if datetime.now().hour < 12:
+      sell_morning_prices[ctx.author.name] = price
+      current = ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(sell_morning_prices.items(), key=lambda x: x[1], reverse=True))
+    else:
+      sell_afternoon_prices[ctx.author.name] = price
+      current = ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(sell_afternoon_prices.items(), key=lambda x: x[1], reverse=True))
   await ctx.send('Added {0.author.name}\'s {1} price of {2}.\n\n**{3} Prices**\n{4:>12}'.format(ctx, op, price, op.capitalize(), current))
 
 # Background task to clear prices
