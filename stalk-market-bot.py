@@ -25,7 +25,8 @@ async def info(ctx):
       $all: List all buy/sell prices\n\
       $buy: List buy prices only\n\
       $sell: List sell prices only\n\
-      $add: Add your price with \"$add buy n\" or \"$add sell n\"")
+      $add: Add your price with \"$add buy n\" or \"$add sell n\"\n\
+      $clear: Clear your buy/sell prices\n")
 
 @bot.command()
 async def all(ctx):
@@ -61,6 +62,13 @@ async def add(ctx, op: str, price: int):
       sell_afternoon_prices[ctx.author.name] = price
       current = ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(sell_afternoon_prices.items(), key=lambda x: x[1], reverse=True))
   await ctx.send('Added {0.author.name}\'s {1} price of {2}.\n\n**{3} Prices**\n{4:>12}'.format(ctx, op, price, op.capitalize(), current))
+
+@bot.command()
+async def clear(ctx):
+  buy_prices.pop(ctx.author.name, None)
+  sell_morning_prices.pop(ctx.author.name, None)
+  sell_afternoon_prices.pop(ctx.author.name, None)
+  await ctx.send("Cleared {0}'s buy/sell prices.".format(ctx.author.name))
 
 # Background task to clear prices
 @tasks.loop(hours=24)
