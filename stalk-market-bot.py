@@ -46,13 +46,15 @@ async def info(ctx):
         color=discord.Colour.dark_blue())
     embed.add_field(name='**$info**', value="List commands", inline=False)
     embed.add_field(
-        name='$all', value="List all buy/sell prices", inline=False)
-    embed.add_field(name='$buy', value="List buy prices only", inline=False)
-    embed.add_field(name='$sell', value="List sell prices only", inline=False)
+        name='**$all**', value="List all buy/sell prices", inline=False)
+    embed.add_field(name='**$buy**',
+                    value="List buy prices only", inline=False)
+    embed.add_field(name='**$sell**',
+                    value="List sell prices only", inline=False)
     embed.add_field(
-        name='$add', value="Add your price with \"$add buy n\" or \"$add sell n\"", inline=False)
+        name='**$add**', value="Add your price with \"$add buy n\" or \"$add sell n\"", inline=False)
     embed.add_field(
-        name='$clear', value="Clear your prices with \"clear\", \"clear buy\", \"clear sell\", \"clear sell am\", \"clear sell pm\"", inline=False)
+        name='**$clear**', value="Clear your prices with \"$clear\", \"$clear buy\", \"$clear sell\", \"$clear sell am\", \"$clear sell pm\"", inline=False)
     embed.set_footer(text="Feedback welcome. Contact chowkapow#4085")
     await ctx.send(embed=embed)
 
