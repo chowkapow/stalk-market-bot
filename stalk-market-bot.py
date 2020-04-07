@@ -1,5 +1,6 @@
 import asyncio
 import discord
+import logging
 import os
 import pytz
 
@@ -11,6 +12,15 @@ from dotenv import load_dotenv
 env = 'dev'
 # Change reset time here
 reset_time = 3  # 3 AM
+
+# Logging
+logger = logging.getLogger('discord')
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(
+    filename=env+'_discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter(
+    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
 
 load_dotenv()
 if env == 'dev':
