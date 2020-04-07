@@ -42,7 +42,7 @@ async def info(ctx):
     embed.add_field(
         name='$add', value="Add your price with \"$add buy n\" or \"$add sell n\"", inline=False)
     embed.add_field(
-        name='$clear', value="Clear your buy/sell prices", inline=False)
+        name='$clear', value="Clear your prices with \"clear\", \"clear buy\", \"clear sell\", \"clear sell am\", \"clear sell pm\"", inline=False)
     embed.set_footer(text="Feedback welcome. Contact chowkapow#4085")
     await ctx.send(embed=embed)
 
@@ -111,11 +111,26 @@ async def add(ctx, op: str, price: int):
 
 
 @bot.command()
-async def clear(ctx):
-    buy_prices.pop(ctx.author.name, None)
-    sell_morning_prices.pop(ctx.author.name, None)
-    sell_afternoon_prices.pop(ctx.author.name, None)
-    await ctx.send("Cleared {0}'s buy/sell prices.".format(ctx.author.name))
+async def clear(ctx, op='', selltime=''):
+    if op == 'buy':
+        buy_prices.pop(ctx.author.name, None)
+        await ctx.send("Cleared {0}'s buy price.".format(ctx.author.name))
+    elif op == 'sell':
+        if selltime.lower() == 'am':
+            sell_morning_prices.pop(ctx.author.name, None)
+            await ctx.send("Cleared {0}'s sell morning prices.".format(ctx.author.name))
+        elif selltime.lower() == 'pm':
+            sell_afternoon_prices.pop(ctx.author.name, None)
+            await ctx.send("Cleared {0}'s sell afternoon price.".format(ctx.author.name))
+        else:
+            sell_morning_prices.pop(ctx.author.name, None)
+            sell_afternoon_prices.pop(ctx.author.name, None)
+            await ctx.send("Cleared {0}'s sell prices.".format(ctx.author.name))
+    else:
+        buy_prices.pop(ctx.author.name, None)
+        sell_morning_prices.pop(ctx.author.name, None)
+        sell_afternoon_prices.pop(ctx.author.name, None)
+        await ctx.send("Cleared {0}'s buy/sell prices.".format(ctx.author.name))
 
 # Background task to clear prices
 @tasks.loop(hours=24)
