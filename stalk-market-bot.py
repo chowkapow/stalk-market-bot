@@ -30,62 +30,84 @@ timezone = pytz.timezone('America/Chicago')
 # Bot commands
 @bot.command()
 async def info(ctx):
-    await ctx.send("Hi! I'll help you find the best prices for turnips.\n\n\
-      **List of commands**\n\
-      $info: List commands\n\
-      $all: List all buy/sell prices\n\
-      $buy: List buy prices only\n\
-      $sell: List sell prices only\n\
-      $add: Add your price with \"$add buy n\" or \"$add sell n\"\n\
-      $clear: Clear your buy/sell prices\n")
+    embed = discord.Embed(
+        title='Command Menu',
+        description='I\'ll help you find the best prices for turnips!',
+        color=discord.Colour.dark_blue())
+    embed.add_field(name='**$info**', value="List commands", inline=False)
+    embed.add_field(
+        name='$all', value="List all buy/sell prices", inline=False)
+    embed.add_field(name='$buy', value="List buy prices only", inline=False)
+    embed.add_field(name='$sell', value="List sell prices only", inline=False)
+    embed.add_field(
+        name='$add', value="Add your price with \"$add buy n\" or \"$add sell n\"", inline=False)
+    embed.add_field(
+        name='$clear', value="Clear your buy/sell prices", inline=False)
+    embed.set_footer(text="Feedback welcome. Contact chowkapow#4085")
+    await ctx.send(embed=embed)
 
 
 @bot.command()
 async def all(ctx):
     date = timezone.localize(datetime.now()).strftime("%B %d, %I:%M %p %Z")
-    buy = '**Buy Prices**\n' + ''.join('{}:\t{}\n'.format(key, val)
-                                       for key, val in sorted(buy_prices.items(), key=lambda x: x[1]))
-    sell_m = '**Sell Morning Prices**\n' + ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(
-        sell_morning_prices.items(), key=lambda x: x[1], reverse=True))
-    sell_a = '**Sell Afternoon Prices**\n' + ''.join('{}:\t{}\n'.format(
-        key, val) for key, val in sorted(sell_afternoon_prices.items(), key=lambda x: x[1], reverse=True))
-    await ctx.send("Today's date: {0}\n\n{1}\n{2}\n{3}".format(date, buy, sell_m, sell_a))
+    embed = discord.Embed(
+        title='All Prices',
+        color=discord.Colour.dark_blue())
+    embed.add_field(name='\u200b', value='**Buy Prices**', inline=False)
+    for key, val in sorted(buy_prices.items(), key=lambda x: x[1]):
+        embed.add_field(name=key, value=val, inline=True)
+    embed.add_field(
+        name='\u200b', value='**Sell Morning Prices**', inline=False)
+    for key, val in sorted(sell_morning_prices.items(), key=lambda x: x[1], reverse=True):
+        embed.add_field(name=key, value=val, inline=True)
+    embed.add_field(
+        name='\u200b', value='**Sell Afternoon Prices**', inline=False)
+    for key, val in sorted(sell_afternoon_prices.items(), key=lambda x: x[1], reverse=True):
+        embed.add_field(name=key, value=val, inline=True)
+    embed.set_footer(text='Timestamp: ' + date)
+    await ctx.send(embed=embed)
 
 
 @bot.command()
 async def buy(ctx):
     date = timezone.localize(datetime.now()).strftime("%B %d, %I:%M %p %Z")
-    buy = '**Buy Prices**\n' + ''.join('{}:\t{}\n'.format(key, val)
-                                       for key, val in sorted(buy_prices.items(), key=lambda x: x[1]))
-    await ctx.send("Today's date: {0}\n\n{1}".format(date, buy))
+    embed = discord.Embed(
+        title='Buy Prices',
+        color=discord.Colour.dark_blue())
+    for key, val in sorted(buy_prices.items(), key=lambda x: x[1]):
+        embed.add_field(name=key, value=val, inline=True)
+    embed.set_footer(text='Timestamp: ' + date)
+    await ctx.send(embed=embed)
 
 
 @bot.command()
 async def sell(ctx):
     date = timezone.localize(datetime.now()).strftime("%B %d, %I:%M %p %Z")
-    sell_m = '**Sell Morning Prices**\n' + ''.join('{}:\t{}\n'.format(
-        key, val) for key, val in sorted(sell_morning_prices.items(), key=lambda x: x[1], reverse=True))
-    sell_a = '**Sell Afternoon Prices**\n' + ''.join('{}:\t{}\n'.format(
-        key, val) for key, val in sorted(sell_afternoon_prices.items(), key=lambda x: x[1], reverse=True))
-    await ctx.send("Today's date: {0}\n\n{1}\n{2}".format(date, sell_m, sell_a))
+    embed = discord.Embed(
+        title='Sell Prices',
+        color=discord.Colour.dark_blue())
+    embed.add_field(name='\u200b', value='Sell Morning Prices', inline=False)
+    for key, val in sorted(sell_morning_prices.items(), key=lambda x: x[1], reverse=True):
+        embed.add_field(name=key, value=val, inline=True)
+    embed.add_field(name='\u200b', value='Sell Afternoon Prices', inline=False)
+    for key, val in sorted(sell_afternoon_prices.items(), key=lambda x: x[1], reverse=True):
+        embed.add_field(name=key, value=val, inline=True)
+    embed.set_footer(text='Timestamp: ' + date)
+    await ctx.send(embed=embed)
 
 
 @bot.command()
 async def add(ctx, op: str, price: int):
+    await ctx.send('Added {0.author.name}\'s {1} price of {2}.'.format(ctx, op, price))
     if op == 'buy':
         buy_prices[ctx.author.name] = price
-        current = ''.join('{}:\t{}\n'.format(key, val)
-                          for key, val in sorted(buy_prices.items(), key=lambda x: x[1]))
+        await buy(ctx)
     else:
         if datetime.now().hour < 12:
             sell_morning_prices[ctx.author.name] = price
-            current = ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(
-                sell_morning_prices.items(), key=lambda x: x[1], reverse=True))
         else:
             sell_afternoon_prices[ctx.author.name] = price
-            current = ''.join('{}:\t{}\n'.format(key, val) for key, val in sorted(
-                sell_afternoon_prices.items(), key=lambda x: x[1], reverse=True))
-    await ctx.send('Added {0.author.name}\'s {1} price of {2}.\n\n**{3} Prices**\n{4}'.format(ctx, op, price, op.capitalize(), current))
+        await sell(ctx)
 
 
 @bot.command()
