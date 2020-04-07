@@ -133,21 +133,38 @@ async def clear(ctx, op='', selltime=''):
         await ctx.send("Cleared {0}'s buy/sell prices.".format(ctx.author.name))
 
 # Background task to clear prices
-@tasks.loop(hours=24)
-async def reset_prices():
+@tasks.loop(hours=168)
+async def reset_buy_prices():
     await buy_prices.clear()
+
+
+@reset_buy_prices.before_loop
+async def before():
+    d = datetime.now()
+    t = timedelta((12 - d.weekday()) % 7)
+    saturday = d + t
+    reset = datetime(year=saturday.year, month=saturday.month,
+                     day=saturday.day, hour=23, minute=59, second=59)
+    await asyncio.sleep((reset - d).seconds)
+    await bot.wait_until_ready()
+
+
+@tasks.loop(hours=24)
+async def reset_sell_prices():
     await sell_morning_prices.clear()
     await sell_afternoon_prices.clear()
 
 
-@reset_prices.before_loop
+@reset_sell_prices.before_loop
 async def before():
-    tomorrow = datetime.now() + timedelta(days=1)
+    d = datetime.now()
+    tomorrow = d + timedelta(days=1)
     reset = datetime(year=tomorrow.year, month=tomorrow.month,
                      day=tomorrow.day, hour=reset_time, minute=0, second=0)
-    await asyncio.sleep((reset - datetime.now()).seconds)
+    await asyncio.sleep((reset - d).seconds)
     await bot.wait_until_ready()
 
-reset_prices.start()
+reset_buy_prices.start()
+reset_sell_prices.start()
 
 bot.run(TOKEN)
