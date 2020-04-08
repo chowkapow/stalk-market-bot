@@ -72,18 +72,27 @@ async def all(ctx):
         if len(buy_prices) > 0:
             embed.add_field(
                 name='\u200b', value='**Buy Prices**', inline=False)
+            i = 0
             for key, val in sorted(buy_prices.items(), key=lambda x: x[1]):
-                embed.add_field(name=key, value=val, inline=True)
+                i += 1
+                embed.add_field(name=key if i > 1 else 'Lowest', value=val if i > 1 else str("""```py\n{0} - {1}```""".format(key, val)),
+                                inline=True if i > 1 else False)
         if len(sell_morning_prices) > 0:
             embed.add_field(
                 name='\u200b', value='**Sell Morning Prices**', inline=False)
+            i = 0
             for key, val in sorted(sell_morning_prices.items(), key=lambda x: x[1], reverse=True):
-                embed.add_field(name=key, value=val, inline=True)
+                i += 1
+                embed.add_field(name=key if i > 1 else 'Highest', value=val if i > 1 else str("""```py\n{0} - {1}```""".format(key, val)),
+                                inline=True if i > 1 else False)
         if len(sell_afternoon_prices) > 0:
             embed.add_field(
                 name='\u200b', value='**Sell Afternoon Prices**', inline=False)
+            i = 0
             for key, val in sorted(sell_afternoon_prices.items(), key=lambda x: x[1], reverse=True):
-                embed.add_field(name=key, value=val, inline=True)
+                i += 1
+                embed.add_field(name=key if i > 1 else 'Highest', value=val if i > 1 else str("""```py\n{0} - {1}```""".format(key, val)),
+                                inline=True if i > 1 else False)
         embed.set_footer(text=date)
         await ctx.send(embed=embed)
 
@@ -97,8 +106,11 @@ async def buy(ctx):
         embed = discord.Embed(
             title='Buy Prices',
             color=discord.Colour.dark_blue())
+        i = 0
         for key, val in sorted(buy_prices.items(), key=lambda x: x[1]):
-            embed.add_field(name=key, value=val, inline=True)
+            i += 1
+            embed.add_field(name=key if i > 1 else 'Lowest', value=val if i > 1 else str("""```py\n{0} - {1}```""".format(key, val)),
+                            inline=True if i > 1 else False)
         embed.set_footer(text=date)
         await ctx.send(embed=embed)
 
@@ -115,13 +127,19 @@ async def sell(ctx):
         if len(sell_morning_prices) > 0:
             embed.add_field(
                 name='\u200b', value='Sell Morning Prices', inline=False)
+            i = 0
             for key, val in sorted(sell_morning_prices.items(), key=lambda x: x[1], reverse=True):
-                embed.add_field(name=key, value=val, inline=True)
+                i += 1
+                embed.add_field(name=key if i > 1 else 'Highest', value=val if i > 1 else str("""```py\n{0} - {1}```""".format(key, val)),
+                                inline=True if i > 1 else False)
         if len(sell_afternoon_prices) > 0:
             embed.add_field(
                 name='\u200b', value='Sell Afternoon Prices', inline=False)
+            i = 0
             for key, val in sorted(sell_afternoon_prices.items(), key=lambda x: x[1], reverse=True):
-                embed.add_field(name=key, value=val, inline=True)
+                i += 1
+                embed.add_field(name=key if i > 1 else 'Highest', value=val if i > 1 else str("""```py\n{0} - {1}```""".format(key, val)),
+                                inline=True if i > 1 else False)
         embed.set_footer(text=date)
         await ctx.send(embed=embed)
 
