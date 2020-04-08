@@ -3,13 +3,13 @@ import discord
 import logging
 import os
 import pytz
+import sys
 
 from datetime import datetime, timedelta
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 
-# Change env here
-env = 'dev'
+env = 'dev' if len(sys.argv) == 1 else sys.argv[1]
 # Change reset time here
 reset_time = 3  # 3 AM
 
