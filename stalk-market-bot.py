@@ -38,6 +38,12 @@ sell_morning_prices = {}
 sell_afternoon_prices = {}
 timezone = pytz.timezone('America/Chicago')
 
+
+def is_turnip_trader():
+    async def predicate(ctx):
+        return "Turnip Trader" in [r.name for r in ctx.author.roles]
+    return commands.check(predicate)
+
 # Bot commands
 @bot.command()
 async def help(ctx):
@@ -150,9 +156,9 @@ async def add(ctx, op='sell', price='0', selltime=''):
     if (op != 'buy' and op != 'sell') or not price.isdigit() or (selltime != '' and selltime != 'am' and selltime != 'pm'):
         await ctx.send("Please check your input.")
     else:
-        await ctx.send('Added {0.author.name}\'s {1} price of {2}.'.format(ctx, op, price))
+        await ctx.send('Added {0}\'s {1} price of {2}.'.format(ctx.author.name, op, price))
         if op == 'buy':
-            buy_prices[ctx.author.name] = price
+            buy_prices[ctx.author.name] = int(price)
             await buy(ctx)
         else:
             if (datetime.now().hour < 12 and selltime == '') or selltime == 'am':
@@ -188,7 +194,49 @@ async def clearPrices(ctx, op='', selltime=''):
             sell_afternoon_prices.pop(ctx.author.name, None)
             await ctx.send("Cleared {0}'s buy/sell prices.".format(ctx.author.name))
 
-# Background task to clear prices
+
+@bot.command()
+@is_turnip_trader()
+async def admin_add(ctx, name: str, op: str, price: int, selltime=''):
+    selltime = selltime.lower()
+    await ctx.send('Added {0}\'s {1} price of {2}.'.format(name, op, price))
+    if op == 'buy':
+        buy_prices[name] = price
+        await buy(ctx)
+    else:
+        if (datetime.now().hour < 12 and selltime == '') or selltime == 'am':
+            sell_morning_prices[name] = price
+        elif (datetime.now().hour >= 12 and selltime == '') or selltime == 'pm':
+            sell_afternoon_prices[name] = price
+        await sell(ctx)
+
+
+@bot.command()
+@is_turnip_trader()
+async def admin_clear(ctx, name: str, op='', selltime=''):
+    selltime = selltime.lower()
+    if op == 'buy':
+        buy_prices.pop(name, None)
+        await ctx.send("Cleared {0}'s buy price.".format(name))
+    elif op == 'sell':
+        if selltime == 'am':
+            sell_morning_prices.pop(name, None)
+            await ctx.send("Cleared {0}'s sell morning price.".format(name))
+        elif selltime == 'pm':
+            sell_afternoon_prices.pop(name, None)
+            await ctx.send("Cleared {0}'s sell afternoon price.".format(name))
+        else:
+            sell_morning_prices.pop(name, None)
+            sell_afternoon_prices.pop(name, None)
+            await ctx.send("Cleared {0}'s sell prices.".format(name))
+    else:
+        buy_prices.pop(name, None)
+        sell_morning_prices.pop(name, None)
+        sell_afternoon_prices.pop(name, None)
+        await ctx.send("Cleared {0}'s buy/sell prices.".format(name))
+
+
+# Background tasks to clear prices
 @tasks.loop(hours=168)
 async def reset_buy_prices():
     buy_prices.clear()
