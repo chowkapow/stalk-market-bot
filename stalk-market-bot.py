@@ -151,20 +151,20 @@ async def sell(ctx):
 
 
 @bot.command()
-async def add(ctx, op='sell', price='0', selltime=''):
+async def add(ctx, op: str, price: int, selltime=''):
     selltime = selltime.lower()
-    if (op != 'buy' and op != 'sell') or not price.isdigit() or (selltime != '' and selltime != 'am' and selltime != 'pm'):
-        await ctx.send("Please check your input.")
+    if (op != 'buy' and op != 'sell') or (selltime != '' and selltime != 'am' and selltime != 'pm'):
+        await ctx.send("Invalid input - please try again.")
     else:
         await ctx.send('Added {0}\'s {1} price of {2}.'.format(ctx.author.name, op, price))
         if op == 'buy':
-            buy_prices[ctx.author.name] = int(price)
+            buy_prices[ctx.author.name] = price
             await buy(ctx)
         else:
             if (datetime.now().hour < 12 and selltime == '') or selltime == 'am':
-                sell_morning_prices[ctx.author.name] = int(price)
+                sell_morning_prices[ctx.author.name] = price
             elif (datetime.now().hour >= 12 and selltime == '') or selltime == 'pm':
-                sell_afternoon_prices[ctx.author.name] = int(price)
+                sell_afternoon_prices[ctx.author.name] = price
             await sell(ctx)
 
 
@@ -172,7 +172,7 @@ async def add(ctx, op='sell', price='0', selltime=''):
 async def clearPrices(ctx, op='', selltime=''):
     selltime = selltime.lower()
     if (op != '' and op != 'buy' and op != 'sell') or (selltime != '' and selltime != 'am' and selltime != 'pm'):
-        await ctx.send("Please check your input.")
+        await ctx.send("Invalid input - please try again.")
     else:
         if op == 'buy':
             buy_prices.pop(ctx.author.name, None)
@@ -235,6 +235,10 @@ async def admin_clear(ctx, name: str, op='', selltime=''):
         sell_afternoon_prices.pop(name, None)
         await ctx.send("Cleared {0}'s buy/sell prices.".format(name))
 
+
+@bot.event
+async def on_command_error(ctx, error):
+    await ctx.send("Invalid input - please try again.")
 
 # Background tasks to clear prices
 @tasks.loop(hours=168)
