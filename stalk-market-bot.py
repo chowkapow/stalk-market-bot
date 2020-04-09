@@ -162,8 +162,8 @@ async def add(ctx, op='sell', price='0', selltime=''):
             await sell(ctx)
 
 
-@bot.command()
-async def clear(ctx, op='', selltime=''):
+@bot.command(name='clear')
+async def clearPrices(ctx, op='', selltime=''):
     selltime = selltime.lower()
     if (op != '' and op != 'buy' and op != 'sell') or (selltime != '' and selltime != 'am' and selltime != 'pm'):
         await ctx.send("Please check your input.")
@@ -191,7 +191,7 @@ async def clear(ctx, op='', selltime=''):
 # Background task to clear prices
 @tasks.loop(hours=168)
 async def reset_buy_prices():
-    await buy_prices.clear()
+    buy_prices.clear()
 
 
 @reset_buy_prices.before_loop
@@ -207,8 +207,8 @@ async def before():
 
 @tasks.loop(hours=24)
 async def reset_sell_prices():
-    await sell_morning_prices.clear()
-    await sell_afternoon_prices.clear()
+    sell_morning_prices.clear()
+    sell_afternoon_prices.clear()
 
 
 @reset_sell_prices.before_loop
