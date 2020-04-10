@@ -5,6 +5,7 @@ import logging
 import os
 import pytz
 import sys
+import urllib.request
 
 from datetime import datetime, timedelta
 from discord.ext import commands, tasks
@@ -85,6 +86,12 @@ def write_json(name, op, price, selltime):
         json.dump(data, outfile, indent=2)
 
 
+def tiny_url(url):
+    apiurl = "http://tinyurl.com/api-create.php?url="
+    tinyurl = urllib.request.urlopen(apiurl + url).read()
+    return tinyurl.decode("utf-8")
+
+
 # Bot commands
 @bot.command()
 async def help(ctx):
@@ -105,6 +112,9 @@ async def help(ctx):
         name='**$clear**', value="Clear your prices with \"$clear\", \"$clear buy\", \"$clear sell\", \"$clear sell am\", \"$clear sell pm\"", inline=False)
     embed.add_field(
         name='**$history**', value='List your buy/sell prices of the week', inline=False)
+    embed.add_field(
+        name='**$trends**', value='See the trends for your prices via turnipprophet.io', inline=False
+    )
     embed.set_footer(text="Feedback welcome. Contact chowkapow#4085")
     await ctx.send(embed=embed)
 
@@ -253,6 +263,23 @@ async def history(ctx):
             embed.add_field(name=key, value=val, inline=False)
         embed.set_footer(text=date)
         await ctx.send(embed=embed)
+    else:
+        await ctx.send('No data exists!')
+
+
+@bot.command()
+async def trends(ctx):
+    data = read_json(env + '_data.json')
+    user = ctx.author.name
+    prices = ''
+    if user in data.keys():
+        missing_days = set(weekday_order.keys()) - set(data[user].keys())
+        for d in missing_days:
+            data[user][d] = ''
+        for key, val in sorted(data[user].items(), key=lambda x: weekday_order[x[0]]):
+            prices += str(val) + '.'
+        url = 'https://turnipprophet.io/index.html?prices={}'.format(prices)
+        await ctx.send('{}\'s trends here: {}'.format(ctx.author.name, tiny_url(url)))
     else:
         await ctx.send('No data exists!')
 
