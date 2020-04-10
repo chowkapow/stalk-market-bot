@@ -113,7 +113,7 @@ async def help(ctx):
     embed.add_field(
         name='**$history**', value='List your buy/sell prices of the week', inline=False)
     embed.add_field(
-        name='**$trends**', value='See the trends for your prices via turnipprophet.io', inline=False
+        name='**$trends**', value='See the trends for your prices via [turnipprophet.io](https://turnipprophet.io)\n**DISCLAIMER**: NOT written by me', inline=False
     )
     embed.set_footer(text="Feedback welcome. Contact chowkapow#4085")
     await ctx.send(embed=embed)
