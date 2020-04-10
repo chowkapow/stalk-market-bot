@@ -1,5 +1,6 @@
 import asyncio
 import discord
+import json
 import logging
 import os
 import pytz
@@ -43,6 +44,30 @@ def is_turnip_trader():
     async def predicate(ctx):
         return "Turnip Trader" in [r.name for r in ctx.author.roles]
     return commands.check(predicate)
+
+
+def read_json(filename):
+    with open(filename) as readfile:
+        data = json.load(readfile)
+        return data
+
+
+def write_json(name, op, price, selltime):
+    date = datetime.now()
+    filename = env + '_data.json'
+    data = read_json(filename)
+    if name not in data.keys():
+        data[name] = {}
+    if op == 'buy':
+        key = 'Sun'
+    else:
+        day = date.strftime('%a')
+        selltime = date.strftime('%p') if selltime == '' else selltime.upper()
+        key = day + '-' + selltime
+    data[name][key] = price
+    with open(filename, 'w') as outfile:
+        json.dump(data, outfile, indent=2)
+
 
 # Bot commands
 @bot.command()
@@ -159,12 +184,15 @@ async def add(ctx, op: str, price: int, selltime=''):
         await ctx.send('Added {0}\'s {1} price of {2}.'.format(ctx.author.name, op, price))
         if op == 'buy':
             buy_prices[ctx.author.name] = price
+            write_json(ctx.author.name, op, price, selltime)
             await buy(ctx)
         else:
             if (datetime.now().hour < 12 and selltime == '') or selltime == 'am':
                 sell_morning_prices[ctx.author.name] = price
+                write_json(ctx.author.name, op, price, selltime)
             elif (datetime.now().hour >= 12 and selltime == '') or selltime == 'pm':
                 sell_afternoon_prices[ctx.author.name] = price
+                write_json(ctx.author.name, op, price, selltime)
             await sell(ctx)
 
 
@@ -202,12 +230,15 @@ async def admin_add(ctx, name: str, op: str, price: int, selltime=''):
     await ctx.send('Added {0}\'s {1} price of {2}.'.format(name, op, price))
     if op == 'buy':
         buy_prices[name] = price
+        write_json(name, op, price, selltime)
         await buy(ctx)
     else:
         if (datetime.now().hour < 12 and selltime == '') or selltime == 'am':
             sell_morning_prices[name] = price
+            write_json(name, op, price, selltime)
         elif (datetime.now().hour >= 12 and selltime == '') or selltime == 'pm':
             sell_afternoon_prices[name] = price
+            write_json(name, op, price, selltime)
         await sell(ctx)
 
 
@@ -236,9 +267,9 @@ async def admin_clear(ctx, name: str, op='', selltime=''):
         await ctx.send("Cleared {0}'s buy/sell prices.".format(name))
 
 
-@bot.event
-async def on_command_error(ctx, error):
-    await ctx.send("Invalid input - please try again.")
+# @bot.event
+# async def on_command_error(ctx, error):
+#     await ctx.send("Invalid input - please try again.")
 
 # Background tasks to clear prices
 @tasks.loop(hours=168)
