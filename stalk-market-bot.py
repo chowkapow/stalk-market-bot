@@ -336,6 +336,8 @@ async def admin_clear(ctx, name: str, op='', selltime=''):
 @tasks.loop(hours=168)
 async def reset_buy_prices():
     buy_prices.clear()
+    with open(env + '_data.json', 'w') as outfile:
+        json.dump({}, outfile)
 
 
 @reset_buy_prices.before_loop
