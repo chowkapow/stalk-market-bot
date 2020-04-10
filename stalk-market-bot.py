@@ -210,17 +210,15 @@ async def add(ctx, op: str, price: int, selltime=''):
         await ctx.send("Invalid input - please try again.")
     else:
         await ctx.send('Added {0}\'s {1} price of {2}.'.format(ctx.author.name, op, price))
+        write_json(ctx.author.name, op, price, selltime)
         if op == 'buy':
             buy_prices[ctx.author.name] = price
-            write_json(ctx.author.name, op, price, selltime)
             await buy(ctx)
         else:
             if (datetime.now().hour < 12 and selltime == '') or selltime == 'am':
                 sell_morning_prices[ctx.author.name] = price
-                write_json(ctx.author.name, op, price, selltime)
             elif (datetime.now().hour >= 12 and selltime == '') or selltime == 'pm':
                 sell_afternoon_prices[ctx.author.name] = price
-                write_json(ctx.author.name, op, price, selltime)
             await sell(ctx)
 
 
@@ -289,17 +287,15 @@ async def trends(ctx):
 async def admin_add(ctx, name: str, op: str, price: int, selltime=''):
     selltime = selltime.lower()
     await ctx.send('Added {0}\'s {1} price of {2}.'.format(name, op, price))
+    write_json(name, op, price, selltime)
     if op == 'buy':
         buy_prices[name] = price
-        write_json(name, op, price, selltime)
         await buy(ctx)
     else:
         if (datetime.now().hour < 12 and selltime == '') or selltime == 'am':
             sell_morning_prices[name] = price
-            write_json(name, op, price, selltime)
         elif (datetime.now().hour >= 12 and selltime == '') or selltime == 'pm':
             sell_afternoon_prices[name] = price
-            write_json(name, op, price, selltime)
         await sell(ctx)
 
 
