@@ -14,6 +14,22 @@ env = 'dev' if len(sys.argv) == 1 else sys.argv[1]
 # Change reset time here
 reset_time = 3  # 3 AM
 
+weekday_order = {
+    'Sun': 0,
+    'Mon-AM': 1,
+    'Mon-PM': 2,
+    'Tue-AM': 3,
+    'Tue-PM': 4,
+    'Wed-AM': 5,
+    'Wed-PM': 6,
+    'Thu-AM': 7,
+    'Thu-PM': 8,
+    'Fri-AM': 9,
+    'Fri-PM': 10,
+    'Sat-AM': 11,
+    'Sat-PM': 12
+}
+
 # Logging
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
@@ -87,6 +103,8 @@ async def help(ctx):
         name='**$add**', value="Add your price with \"$add buy n\", \"$add sell n\", \"$add sell n am\", \"$add sell n pm\"", inline=False)
     embed.add_field(
         name='**$clear**', value="Clear your prices with \"$clear\", \"$clear buy\", \"$clear sell\", \"$clear sell am\", \"$clear sell pm\"", inline=False)
+    embed.add_field(
+        name='**$history**', value='List your buy/sell prices of the week', inline=False)
     embed.set_footer(text="Feedback welcome. Contact chowkapow#4085")
     await ctx.send(embed=embed)
 
@@ -221,6 +239,22 @@ async def clearPrices(ctx, op='', selltime=''):
             sell_morning_prices.pop(ctx.author.name, None)
             sell_afternoon_prices.pop(ctx.author.name, None)
             await ctx.send("Cleared {0}'s buy/sell prices.".format(ctx.author.name))
+
+
+@bot.command()
+async def history(ctx):
+    data = read_json(env + '_data.json')
+    user = ctx.author.name
+    if user in data.keys():
+        date = timezone.localize(datetime.now()).strftime("%B %d, %I:%M %p %Z")
+        embed = discord.Embed(title=user + '\'s Prices',
+                              color=discord.Colour.dark_blue())
+        for key, val in sorted(data[user].items(), key=lambda x: weekday_order[x[0]]):
+            embed.add_field(name=key, value=val, inline=False)
+        embed.set_footer(text=date)
+        await ctx.send(embed=embed)
+    else:
+        await ctx.send('No data exists!')
 
 
 @bot.command()
