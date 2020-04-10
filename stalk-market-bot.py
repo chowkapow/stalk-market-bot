@@ -305,7 +305,7 @@ async def admin_add(ctx, name: str, op: str, price: int, selltime=''):
 
 @bot.command()
 @is_turnip_trader()
-async def admin_clear(ctx, name: str, op='', selltime=''):
+async def admin_clear(ctx, name='', op='', selltime=''):
     selltime = selltime.lower()
     if op == 'buy':
         buy_prices.pop(name, None)
@@ -321,16 +321,43 @@ async def admin_clear(ctx, name: str, op='', selltime=''):
             sell_morning_prices.pop(name, None)
             sell_afternoon_prices.pop(name, None)
             await ctx.send("Cleared {0}'s sell prices.".format(name))
-    else:
+    elif name != '':
         buy_prices.pop(name, None)
         sell_morning_prices.pop(name, None)
         sell_afternoon_prices.pop(name, None)
         await ctx.send("Cleared {0}'s buy/sell prices.".format(name))
+    else:
+        buy_prices.clear()
+        sell_morning_prices.clear()
+        sell_afternoon_prices.clear()
+        await ctx.send("Cleared all prices.")
 
 
-# @bot.event
-# async def on_command_error(ctx, error):
-#     await ctx.send("Invalid input - please try again.")
+@bot.command()
+@is_turnip_trader()
+async def admin_restore(ctx):
+    date = datetime.now()
+    data = read_json(env + '_data.json')
+    today = date.strftime('%a')
+    for user, user_data in data.items():
+        if today == 'Sun':
+            if today in user_data.keys():
+                buy_prices[user] = user_data[today]
+        else:
+            if (today + '-AM') in user_data.keys():
+                sell_morning_prices[user] = user_data[today + '-AM']
+            if (today + '-PM') in user_data.keys():
+                sell_afternoon_prices[user] = user_data[today + '-PM']
+    if len(buy_prices) > 0 or len(sell_morning_prices) > 0 or len(sell_afternoon_prices) > 0:
+        await ctx.send("Restore complete.")
+        await all(ctx)
+    else:
+        await ctx.send("No data to restore.")
+
+
+@bot.event
+async def on_command_error(ctx, error):
+    await ctx.send("Invalid input - please try again.")
 
 # Background tasks to clear prices
 @tasks.loop(hours=168)
