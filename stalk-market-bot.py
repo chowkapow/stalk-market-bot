@@ -370,7 +370,7 @@ async def before():
     saturday = d + t
     reset = datetime(year=saturday.year, month=saturday.month,
                      day=saturday.day, hour=23, minute=59, second=59)
-    await asyncio.sleep((reset - d).seconds)
+    await asyncio.sleep((reset - d).total_seconds())
     await bot.wait_until_ready()
 
 
@@ -386,7 +386,7 @@ async def before():
     tomorrow = d + timedelta(days=1)
     reset = datetime(year=tomorrow.year, month=tomorrow.month,
                      day=tomorrow.day, hour=reset_time, minute=0, second=0)
-    await asyncio.sleep((reset - d).seconds)
+    await asyncio.sleep((reset - d).total_seconds())
     await bot.wait_until_ready()
 
 reset_buy_prices.start()
