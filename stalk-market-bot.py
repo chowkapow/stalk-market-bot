@@ -102,8 +102,6 @@ async def help(ctx):
         color=discord.Colour.dark_blue(),
     )
     embed.add_field(name="**$help**", value="List commands", inline=False)
-    # embed.add_field(
-    # name='**$all**', value="List all buy/sell prices", inline=False)
     embed.add_field(name="**$buy**", value="List buy prices only", inline=False)
     embed.add_field(name="**$sell**", value="List sell prices only", inline=False)
     embed.add_field(
@@ -126,43 +124,6 @@ async def help(ctx):
     )
     embed.set_footer(text="Feedback welcome. Contact chowkapow#4085")
     await ctx.send(embed=embed)
-
-
-# @bot.command()
-# async def all(ctx):
-#     if len(buy_prices) == 0 and len(sell_morning_prices) == 0 and len(sell_afternoon_prices) == 0:
-#         await ctx.send("No prices at this time.")
-#     else:
-#         date = timezone.localize(datetime.now()).strftime("%B %d, %I:%M %p %Z")
-#         embed = discord.Embed(
-#             title='All Prices',
-#             color=discord.Colour.dark_blue())
-#         if len(buy_prices) > 0:
-#             embed.add_field(
-#                 name='\u200b', value='**Buy Prices**', inline=False)
-#             i = 0
-#             for key, val in sorted(buy_prices.items(), key=lambda x: x[1]):
-#                 i += 1
-#                 embed.add_field(name=key if i > 1 else 'Lowest', value=val if i > 1 else str("""```py\n{0} - {1}```""".format(key, val)),
-#                                 inline=True if i > 1 else False)
-#         if len(sell_morning_prices) > 0:
-#             embed.add_field(
-#                 name='\u200b', value='**Sell Morning Prices**', inline=False)
-#             i = 0
-#             for key, val in sorted(sell_morning_prices.items(), key=lambda x: x[1], reverse=True):
-#                 i += 1
-#                 embed.add_field(name=key if i > 1 else 'Highest', value=val if i > 1 else str("""```py\n{0} - {1}```""".format(key, val)),
-#                                 inline=True if i > 1 else False)
-#         if len(sell_afternoon_prices) > 0:
-#             embed.add_field(
-#                 name='\u200b', value='**Sell Afternoon Prices**', inline=False)
-#             i = 0
-#             for key, val in sorted(sell_afternoon_prices.items(), key=lambda x: x[1], reverse=True):
-#                 i += 1
-#                 embed.add_field(name=key if i > 1 else 'Highest', value=val if i > 1 else str("""```py\n{0} - {1}```""".format(key, val)),
-#                                 inline=True if i > 1 else False)
-#         embed.set_footer(text=date)
-#         await ctx.send(embed=embed)
 
 
 @bot.command()
@@ -383,7 +344,6 @@ async def admin_restore(ctx):
         or len(sell_afternoon_prices) > 0
     ):
         await ctx.send("Restore complete.")
-        # await all(ctx)
     else:
         await ctx.send("No data to restore.")
 
