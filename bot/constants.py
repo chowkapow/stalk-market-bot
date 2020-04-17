@@ -28,6 +28,8 @@ help_command = {
     "timezone_value": 'Find your timezone [here](https://gist.github.com/heyalexej/8bf688fd67d7199be4a1682b3eec7568) and type "$timezone (timezone)". Default is "America/Chicago"',
     "island_name": "**$island**",
     "island_value": 'Set your island name. If the name has spaces use quotes, e.g. $island "island name"',
+    "fc_name": "**$fc**",
+    "fc_value": "Set your friend code here, e.g. $fc SW-####-####-####",
     "footer": "Feedback welcome. Contact chowkapow#4085",
 }
 

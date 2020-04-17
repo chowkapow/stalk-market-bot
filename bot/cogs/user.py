@@ -5,6 +5,7 @@ import constants
 
 from datetime import datetime, timedelta
 from discord.ext import commands
+from operator import itemgetter
 
 from constants import (
     error_messages as em,
@@ -53,6 +54,7 @@ class User(commands.Cog):
         embed.add_field(
             name=hc.get("island_name"), value=hc.get("island_value"), inline=False
         )
+        embed.add_field(name=hc.get("fc_name"), value=hc.get("fc_value"), inline=False)
         embed.set_footer(text=hc.get("footer"))
         await ctx.send(embed=embed)
 
@@ -238,6 +240,26 @@ class User(commands.Cog):
         data = {"island": name}
         upsert_user_data(ctx.author.id, data)
         await ctx.send("{}'s island updated to {}".format(ctx.author.name, name))
+
+    @commands.command()
+    async def fc(self, ctx, friend_code: str):
+        dashes = itemgetter(2, 7, 12)(friend_code)
+        if (
+            len(friend_code) == 17
+            and friend_code[0:2] == "SW"
+            and all(d == dashes[0] for d in dashes)
+            and dashes[0] == "-"
+            and friend_code[3:7].isdigit()
+            and friend_code[8:12].isdigit()
+            and friend_code[13:17].isdigit()
+        ):
+            data = {"fc": friend_code}
+            upsert_user_data(ctx.author.id, data)
+            await ctx.send(
+                "{}'s friend code updated to {}".format(ctx.author.name, friend_code)
+            )
+        else:
+            await ctx.send(em.get("invalid_input"))
 
 
 def setup(bot):
