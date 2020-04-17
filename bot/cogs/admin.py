@@ -14,7 +14,6 @@ class Admin(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    # @is_turnip_trader()
     async def admin_add(
         self, ctx, name: str, id: int, op: str, price: int, sell_time=""
     ):
@@ -34,7 +33,6 @@ class Admin(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    # @is_turnip_trader()
     async def admin_clear(self, ctx, name: str, id: int, op: str, sell_time=""):
         sell_time = sell_time.lower()
         data = format_remove_price(op, sell_time)
@@ -60,7 +58,6 @@ class Admin(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    # @is_turnip_trader()
     async def admin_restore(self, ctx):
         data = get_users()
         date = datetime.now()
