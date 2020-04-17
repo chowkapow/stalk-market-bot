@@ -1,9 +1,6 @@
 import discord
-import pytz
 
-import constants
-
-from datetime import datetime, timedelta
+from datetime import datetime
 from discord.ext import commands
 from operator import itemgetter
 
@@ -12,8 +9,8 @@ from constants import (
     help_command as hc,
     weekday_order,
 )
-from db import get_user, upsert_user_data, remove_user_data, remove_all_data
-from utils import format_insert_price, format_remove_price, get_user_timezone, tiny_url
+from db import get_user, upsert_user_data
+from utils import format_insert_price, get_user_timezone, tiny_url
 
 
 class User(commands.Cog):
@@ -77,7 +74,7 @@ class User(commands.Cog):
                     name=key if i > 1 else "Lowest",
                     value=val
                     if i > 1
-                    else str("""```py\n{0} - {1}```""".format(key, val)),
+                    else str("""```py\n{} - {}```""".format(key, val)),
                     inline=True if i > 1 else False,
                 )
             embed.set_footer(text=date)
@@ -110,7 +107,7 @@ class User(commands.Cog):
                         name=key if i > 1 else "Highest",
                         value=val
                         if i > 1
-                        else str("""```py\n{0} - {1}```""".format(key, val)),
+                        else str("""```py\n{} - {}```""".format(key, val)),
                         inline=True if i > 1 else False,
                     )
             if len(self.bot._sell_afternoon_prices) > 0:
@@ -128,7 +125,7 @@ class User(commands.Cog):
                         name=key if i > 1 else "Highest",
                         value=val
                         if i > 1
-                        else str("""```py\n{0} - {1}```""".format(key, val)),
+                        else str("""```py\n{} - {}```""".format(key, val)),
                         inline=True if i > 1 else False,
                     )
             embed.set_footer(text=date)
@@ -174,14 +171,14 @@ class User(commands.Cog):
     #         remove_user_data(ctx.author.id, data)
     #         if op == "buy":
     #             self.bot._buy_prices.pop(ctx.author.name, None)
-    #             await ctx.send("Cleared {0}'s buy price.".format(name))
+    #             await ctx.send("Cleared {}'s buy price.".format(name))
     #         else:
     #             if sell_time == "am":
     #                 self.bot._sell_morning_prices.pop(name, None)
-    #                 await ctx.send("Cleared {0}'s sell morning price.".format(name))
+    #                 await ctx.send("Cleared {}'s sell morning price.".format(name))
     #             elif sell_time == "pm":
     #                 self.bot._sell_afternoon_prices.pop(name, None)
-    #                 await ctx.send("Cleared {0}'s sell afternoon price.".format(name))
+    #                 await ctx.send("Cleared {}'s sell afternoon price.".format(name))
     #             else:
     #                 other_sell_time = "am" if date.strftime("%p") == "PM" else "pm"
     #                 remove_user_data(
@@ -189,7 +186,7 @@ class User(commands.Cog):
     #                 )
     #                 self.bot._sell_morning_prices.pop(name, None)
     #                 self.bot._sell_afternoon_prices.pop(name, None)
-    #                 await ctx.send("Cleared {0}'s sell prices.".format(name))
+    #                 await ctx.send("Cleared {}'s sell prices.".format(name))
 
     @commands.command()
     async def history(self, ctx):
@@ -231,7 +228,7 @@ class User(commands.Cog):
 
     @commands.command()
     async def timezone(self, ctx, tz: str):
-        data = {"timezone": tz}
+        data = {"timezone": tz, "username": ctx.author.name}
         upsert_user_data(ctx.author.id, data)
         await ctx.send("{}'s timezone updated to {}".format(ctx.author.name, tz))
 
@@ -252,7 +249,7 @@ class User(commands.Cog):
 
     @commands.command()
     async def island(self, ctx, name: str):
-        data = {"island": name}
+        data = {"island": name, "username": ctx.author.name}
         upsert_user_data(ctx.author.id, data)
         await ctx.send("{}'s island updated to {}".format(ctx.author.name, name))
 
@@ -268,7 +265,7 @@ class User(commands.Cog):
             and friend_code[8:12].isdigit()
             and friend_code[13:17].isdigit()
         ):
-            data = {"fc": friend_code}
+            data = {"fc": friend_code, "username": ctx.author.name}
             upsert_user_data(ctx.author.id, data)
             await ctx.send(
                 "{}'s friend code updated to {}".format(ctx.author.name, friend_code)

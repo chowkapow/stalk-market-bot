@@ -1,9 +1,9 @@
 import discord
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from discord.ext import commands
 
-from db import get_user, get_users, upsert_user_data, remove_user_data, remove_all_data
+from db import get_user, get_users, upsert_user_data, remove_user_data
 from .user import User as user
 from utils import format_insert_price, format_remove_price, get_user_timezone
 
@@ -42,14 +42,14 @@ class Admin(commands.Cog):
         remove_user_data(id, data)
         if op == "buy":
             self.bot._buy_prices.pop(name, None)
-            await ctx.send("Cleared {0}'s buy price.".format(name))
+            await ctx.send("Cleared {}'s buy price.".format(name))
         else:
             if sell_time == "am":
                 self.bot._sell_morning_prices.pop(name, None)
-                await ctx.send("Cleared {0}'s sell morning price.".format(name))
+                await ctx.send("Cleared {}'s sell morning price.".format(name))
             elif sell_time == "pm":
                 self.bot._sell_afternoon_prices.pop(name, None)
-                await ctx.send("Cleared {0}'s sell afternoon price.".format(name))
+                await ctx.send("Cleared {}'s sell afternoon price.".format(name))
             else:
                 other_sell_time = (
                     "am" if datetime.now().strftime("%p") == "PM" else "pm"
@@ -57,7 +57,7 @@ class Admin(commands.Cog):
                 remove_user_data(id, format_remove_price(op, other_sell_time))
                 self.bot._sell_morning_prices.pop(name, None)
                 self.bot._sell_afternoon_prices.pop(name, None)
-                await ctx.send("Cleared {0}'s sell prices.".format(name))
+                await ctx.send("Cleared {}'s sell prices.".format(name))
 
     @commands.command()
     @commands.is_owner()

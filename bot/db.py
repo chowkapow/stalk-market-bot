@@ -1,7 +1,5 @@
 import pymongo
 
-from datetime import datetime
-
 conn = pymongo.MongoClient("mongodb://localhost:27017/")
 
 db = conn["stalk-market"]

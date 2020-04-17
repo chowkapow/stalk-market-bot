@@ -1,6 +1,5 @@
-import urllib.request
 import pytz
-
+import urllib.request
 
 from datetime import datetime
 
