@@ -23,9 +23,9 @@ def format_day(op: str, sell_time=""):
         return day + "-" + sell_time
 
 
-def format_insert_price(nickname: str, op: str, price: int, sell_time=""):
+def format_insert_price(username: str, op: str, price: int, sell_time=""):
     key = format_day(op, sell_time)
-    return {"prices.{}".format(key): price, "nickname": nickname}
+    return {"prices.{}".format(key): price, "username": username}
 
 
 def format_remove_price(op: str, sell_time=""):

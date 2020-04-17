@@ -64,14 +64,14 @@ class Admin(commands.Cog):
         today = date.strftime("%a")
         for i in data:
             if today == "Sun" and today in i["prices"].keys():
-                self.bot._buy_prices[i["nickname"]] = i["prices"][today]
+                self.bot._buy_prices[i["username"]] = i["prices"][today]
             else:
                 if (today + "-AM") in i["prices"].keys():
-                    self.bot._sell_morning_prices[i["nickname"]] = i["prices"][
+                    self.bot._sell_morning_prices[i["username"]] = i["prices"][
                         today + "-AM"
                     ]
                 if (today + "-PM") in i["prices"].keys():
-                    self.bot._sell_afternoon_prices[i["nickname"]] = i["prices"][
+                    self.bot._sell_afternoon_prices[i["username"]] = i["prices"][
                         today + "-PM"
                     ]
 
