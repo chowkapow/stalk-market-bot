@@ -39,9 +39,9 @@ class User(commands.Cog):
         embed.add_field(
             name=hc.get("add_name"), value=hc.get("add_value"), inline=False
         )
-        embed.add_field(
-            name=hc.get("clear_name"), value=hc.get("clear_value"), inline=False
-        )
+        # embed.add_field(
+        #     name=hc.get("clear_name"), value=hc.get("clear_value"), inline=False
+        # )
         embed.add_field(
             name=hc.get("history_name"), value=hc.get("history_value"), inline=False
         )
@@ -159,37 +159,37 @@ class User(commands.Cog):
                     self.bot._sell_afternoon_prices[name] = price
                 await self.sell(ctx)
 
-    @commands.command(name="clear")
-    async def clearPrices(self, ctx, op: str, sell_time=""):
-        if (op != "" and op != "buy" and op != "sell") or (
-            sell_time != "" and sell_time != "am" and sell_time != "pm"
-        ):
-            await ctx.send(em.get("invalid_input"))
-        else:
-            name = ctx.author.name
-            user_data = get_user(ctx.author.id)
-            tz = get_user_timezone(user_data)
-            date = datetime.now(tz)
-            data = format_remove_price(op, sell_time)
-            remove_user_data(ctx.author.id, data)
-            if op == "buy":
-                self.bot._buy_prices.pop(ctx.author.name, None)
-                await ctx.send("Cleared {0}'s buy price.".format(name))
-            else:
-                if sell_time == "am":
-                    self.bot._sell_morning_prices.pop(name, None)
-                    await ctx.send("Cleared {0}'s sell morning price.".format(name))
-                elif sell_time == "pm":
-                    self.bot._sell_afternoon_prices.pop(name, None)
-                    await ctx.send("Cleared {0}'s sell afternoon price.".format(name))
-                else:
-                    other_sell_time = "am" if date.strftime("%p") == "PM" else "pm"
-                    remove_user_data(
-                        ctx.author.id, format_remove_price(op, other_sell_time)
-                    )
-                    self.bot._sell_morning_prices.pop(name, None)
-                    self.bot._sell_afternoon_prices.pop(name, None)
-                    await ctx.send("Cleared {0}'s sell prices.".format(name))
+    # @commands.command(name="clear")
+    # async def clearPrices(self, ctx, op: str, sell_time=""):
+    #     if (op != "" and op != "buy" and op != "sell") or (
+    #         sell_time != "" and sell_time != "am" and sell_time != "pm"
+    #     ):
+    #         await ctx.send(em.get("invalid_input"))
+    #     else:
+    #         name = ctx.author.name
+    #         user_data = get_user(ctx.author.id)
+    #         tz = get_user_timezone(user_data)
+    #         date = datetime.now(tz)
+    #         data = format_remove_price(op, sell_time)
+    #         remove_user_data(ctx.author.id, data)
+    #         if op == "buy":
+    #             self.bot._buy_prices.pop(ctx.author.name, None)
+    #             await ctx.send("Cleared {0}'s buy price.".format(name))
+    #         else:
+    #             if sell_time == "am":
+    #                 self.bot._sell_morning_prices.pop(name, None)
+    #                 await ctx.send("Cleared {0}'s sell morning price.".format(name))
+    #             elif sell_time == "pm":
+    #                 self.bot._sell_afternoon_prices.pop(name, None)
+    #                 await ctx.send("Cleared {0}'s sell afternoon price.".format(name))
+    #             else:
+    #                 other_sell_time = "am" if date.strftime("%p") == "PM" else "pm"
+    #                 remove_user_data(
+    #                     ctx.author.id, format_remove_price(op, other_sell_time)
+    #                 )
+    #                 self.bot._sell_morning_prices.pop(name, None)
+    #                 self.bot._sell_afternoon_prices.pop(name, None)
+    #                 await ctx.send("Cleared {0}'s sell prices.".format(name))
 
     @commands.command()
     async def history(self, ctx):
