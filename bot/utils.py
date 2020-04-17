@@ -1,6 +1,10 @@
 import urllib.request
+import pytz
+
 
 from datetime import datetime
+
+from constants import default_timezone
 
 
 def tiny_url(url):
@@ -27,3 +31,12 @@ def format_insert_price(nickname: str, op: str, price: int, sell_time=""):
 def format_remove_price(op: str, sell_time=""):
     key = format_day(op, sell_time)
     return {"prices.{}".format(key): ""}
+
+
+def get_user_timezone(data):
+    tz = (
+        pytz.timezone(data["timezone"])
+        if "timezone" in data.keys()
+        else pytz.timezone(default_timezone)
+    )
+    return tz

@@ -6,9 +6,13 @@ import constants
 from datetime import datetime, timedelta
 from discord.ext import commands
 
-from constants import error_messages as em, help_command as hc, timezone, weekday_order
+from constants import (
+    error_messages as em,
+    help_command as hc,
+    weekday_order,
+)
 from db import get_user, upsert_user_data, remove_user_data, remove_all_data
-from utils import tiny_url, format_insert_price, format_remove_price
+from utils import format_insert_price, format_remove_price, get_user_timezone, tiny_url
 
 
 class User(commands.Cog):
@@ -43,6 +47,9 @@ class User(commands.Cog):
         embed.add_field(
             name=hc.get("trends_name"), value=hc.get("trends_value"), inline=False
         )
+        embed.add_field(
+            name=hc.get("timezone_name"), value=hc.get("timezone_value"), inline=False
+        )
         embed.set_footer(text=hc.get("footer"))
         await ctx.send(embed=embed)
 
@@ -51,7 +58,9 @@ class User(commands.Cog):
         if len(self.bot._buy_prices) == 0:
             await ctx.send(em.get("empty_buy"))
         else:
-            date = timezone.localize(datetime.now()).strftime("%B %d, %I:%M %p %Z")
+            user_data = get_user(ctx.author.id)
+            tz = get_user_timezone(user_data)
+            date = datetime.now(tz).strftime("%B %d, %I:%M %p %Z")
             embed = discord.Embed(title="Buy Prices", color=discord.Colour.dark_blue())
             i = 0
             for key, val in sorted(self.bot._buy_prices.items(), key=lambda x: x[1]):
@@ -74,7 +83,9 @@ class User(commands.Cog):
         ):
             await ctx.send(em.get("empty_sell"))
         else:
-            date = timezone.localize(datetime.now()).strftime("%B %d, %I:%M %p %Z")
+            user_data = get_user(ctx.author.id)
+            tz = get_user_timezone(user_data)
+            date = datetime.now(tz).strftime("%B %d, %I:%M %p %Z")
             embed = discord.Embed(title="Sell Prices", color=discord.Colour.dark_blue())
             if len(self.bot._sell_morning_prices) > 0:
                 embed.add_field(
@@ -117,7 +128,6 @@ class User(commands.Cog):
 
     @commands.command()
     async def add(self, ctx, op: str, price: int, sell_time=""):
-        sell_time = sell_time.lower()
         if (
             (op != "buy" and op != "sell")
             or price < 0
@@ -126,6 +136,11 @@ class User(commands.Cog):
             await ctx.send(em.get("invalid_input"))
         else:
             name = ctx.author.name
+            user_data = get_user(ctx.author.id)
+            tz = get_user_timezone(user_data)
+            date = datetime.now(tz)
+            if sell_time == "":
+                sell_time = date.strftime("%p").lower()
             data = format_insert_price(name, op, price, sell_time)
             if upsert_user_data(ctx.author.id, data):
                 await ctx.send("Added {0}'s {1} price of {2}.".format(name, op, price))
@@ -133,60 +148,56 @@ class User(commands.Cog):
                 self.bot._buy_prices[name] = price
                 await self.buy(ctx)
             else:
-                if (datetime.now().hour < 12 and sell_time == "") or sell_time == "am":
+                if (date.hour < 12 and sell_time == "") or sell_time == "am":
                     self.bot._sell_morning_prices[name] = price
-                elif (
-                    datetime.now().hour >= 12 and sell_time == ""
-                ) or sell_time == "pm":
+                elif (date.hour >= 12 and sell_time == "") or sell_time == "pm":
                     self.bot._sell_afternoon_prices[name] = price
                 await self.sell(ctx)
 
     @commands.command(name="clear")
     async def clearPrices(self, ctx, op: str, sell_time=""):
-        sell_time = sell_time.lower()
         if (op != "" and op != "buy" and op != "sell") or (
             sell_time != "" and sell_time != "am" and sell_time != "pm"
         ):
             await ctx.send(em.get("invalid_input"))
         else:
+            name = ctx.author.name
+            user_data = get_user(ctx.author.id)
+            tz = get_user_timezone(user_data)
+            date = datetime.now(tz)
             data = format_remove_price(op, sell_time)
             remove_user_data(ctx.author.id, data)
             if op == "buy":
                 self.bot._buy_prices.pop(ctx.author.name, None)
-                await ctx.send("Cleared {0}'s buy price.".format(ctx.author.name))
+                await ctx.send("Cleared {0}'s buy price.".format(name))
             else:
                 if sell_time == "am":
-                    self.bot._sell_morning_prices.pop(ctx.author.name, None)
-                    await ctx.send(
-                        "Cleared {0}'s sell morning price.".format(ctx.author.name)
-                    )
+                    self.bot._sell_morning_prices.pop(name, None)
+                    await ctx.send("Cleared {0}'s sell morning price.".format(name))
                 elif sell_time == "pm":
-                    self.bot._sell_afternoon_prices.pop(ctx.author.name, None)
-                    await ctx.send(
-                        "Cleared {0}'s sell afternoon price.".format(ctx.author.name)
-                    )
+                    self.bot._sell_afternoon_prices.pop(name, None)
+                    await ctx.send("Cleared {0}'s sell afternoon price.".format(name))
                 else:
-                    other_sell_time = (
-                        "am" if datetime.now().strftime("%p") == "PM" else "pm"
-                    )
+                    other_sell_time = "am" if date.strftime("%p") == "PM" else "pm"
                     remove_user_data(
                         ctx.author.id, format_remove_price(op, other_sell_time)
                     )
-                    self.bot._sell_morning_prices.pop(ctx.author.name, None)
-                    self.bot._sell_afternoon_prices.pop(ctx.author.name, None)
-                    await ctx.send("Cleared {0}'s sell prices.".format(ctx.author.name))
+                    self.bot._sell_morning_prices.pop(name, None)
+                    self.bot._sell_afternoon_prices.pop(name, None)
+                    await ctx.send("Cleared {0}'s sell prices.".format(name))
 
     @commands.command()
     async def history(self, ctx):
-        data = get_user(ctx.author.id)
-        if data:
+        user_data = get_user(ctx.author.id)
+        if "prices" in user_data.keys() and len(user_data["prices"]) > 0:
+            tz = get_user_timezone(user_data)
+            date = datetime.now(tz).strftime("%B %d, %I:%M %p %Z")
             user = ctx.author.name
-            date = timezone.localize(datetime.now()).strftime("%B %d, %I:%M %p %Z")
             embed = discord.Embed(
                 title=user + "'s Prices", color=discord.Colour.dark_blue()
             )
             for key, val in sorted(
-                data["prices"].items(), key=lambda x: weekday_order[x[0]]
+                user_data["prices"].items(), key=lambda x: weekday_order[x[0]]
             ):
                 embed.add_field(name=key, value=val, inline=False)
             embed.set_footer(text=date)
@@ -196,14 +207,14 @@ class User(commands.Cog):
 
     @commands.command()
     async def trends(self, ctx):
-        data = get_user(ctx.author.id)
-        if data:
+        user_data = get_user(ctx.author.id)
+        if "prices" in user_data.keys() and len(user_data["prices"]) > 0:
             prices = ""
-            missing_days = set(weekday_order.keys()) - set(data["prices"].keys())
+            missing_days = set(weekday_order.keys()) - set(user_data["prices"].keys())
             for d in missing_days:
-                data["prices"][d] = ""
+                user_data["prices"][d] = ""
             for key, val in sorted(
-                data["prices"].items(), key=lambda x: weekday_order[x[0]]
+                user_data["prices"].items(), key=lambda x: weekday_order[x[0]]
             ):
                 prices += str(val) + "."
             url = "https://turnipprophet.io/index.html?prices={}".format(prices)
@@ -212,6 +223,12 @@ class User(commands.Cog):
             )
         else:
             await ctx.send(em.get("no_data"))
+
+    @commands.command()
+    async def timezone(self, ctx, tz: str):
+        data = {"timezone": tz}
+        upsert_user_data(ctx.author.id, data)
+        await ctx.send("{}'s timezone updated to {}".format(ctx.author.name, tz))
 
 
 def setup(bot):

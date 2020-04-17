@@ -1,5 +1,4 @@
-# Change reset time here
-import pytz
+default_timezone = "America/Chicago"
 
 error_messages = {
     "empty_buy": "No buy prices at this time.",
@@ -25,12 +24,14 @@ help_command = {
     "history_value": "List your buy/sell prices of the week",
     "trends_name": "**$trends**",
     "trends_value": "See the trends for your prices via [turnipprophet.io](https://turnipprophet.io)\n**DISCLAIMER**: Site not written by me",
+    "timezone_name": "**$timezone**",
+    "timezone_value": 'Find your timezone [here](https://gist.github.com/heyalexej/8bf688fd67d7199be4a1682b3eec7568) and type "$timezone (timezone)". Default is "America/Chicago"',
     "footer": "Feedback welcome. Contact chowkapow#4085",
 }
 
+# Change reset time here
 reset_time = 3  # 3 AM
 
-timezone = pytz.timezone("America/Chicago")
 
 weekday_order = {
     "Sun": 0,
