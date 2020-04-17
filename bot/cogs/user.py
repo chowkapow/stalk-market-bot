@@ -52,6 +52,9 @@ class User(commands.Cog):
             name=hc.get("timezone_name"), value=hc.get("timezone_value"), inline=False
         )
         embed.add_field(
+            name=hc.get("info_name"), value=hc.get("info_value"), inline=False
+        )
+        embed.add_field(
             name=hc.get("island_name"), value=hc.get("island_value"), inline=False
         )
         embed.add_field(name=hc.get("fc_name"), value=hc.get("fc_value"), inline=False)
@@ -234,6 +237,21 @@ class User(commands.Cog):
         data = {"timezone": tz}
         upsert_user_data(ctx.author.id, data)
         await ctx.send("{}'s timezone updated to {}".format(ctx.author.name, tz))
+
+    @commands.command()
+    async def info(self, ctx):
+        user_data = get_user(ctx.author.id)
+        if user_data and ("fc" in user_data.keys() or "island" in user_data.keys()):
+            embed = discord.Embed(
+                title=ctx.author.name + "'s Info", color=discord.Colour.dark_blue()
+            )
+            if "fc" in user_data.keys():
+                embed.add_field(name="Friend Code", value=user_data["fc"], inline=False)
+            if "island" in user_data.keys():
+                embed.add_field(name="Island", value=user_data["island"], inline=False)
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send(em.get("no_data"))
 
     @commands.command()
     async def island(self, ctx, name: str):
