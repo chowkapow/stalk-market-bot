@@ -135,24 +135,21 @@ class User(commands.Cog):
             await ctx.send(embed=embed)
 
     @commands.command()
-    async def add(self, ctx, op: str, price: int, sell_time=""):
-        if (
-            (op != "buy" and op != "sell")
-            or price < 0
-            or (sell_time != "" and sell_time != "am" and sell_time != "pm")
-        ):
+    async def add(self, ctx, price: int, sell_time=""):
+        if price < 0 or (sell_time != "" and sell_time != "am" and sell_time != "pm"):
             await ctx.send(em.get("invalid_input"))
         else:
             name = ctx.author.name
             user_data = get_user(ctx.author.id)
             tz = get_user_timezone(user_data)
             date = datetime.now(tz)
+            day = date.strftime("%a")
             if sell_time == "":
                 sell_time = date.strftime("%p").lower()
-            data = format_insert_price(name, op, price, sell_time)
+            data = format_insert_price(name, day, price, sell_time.upper())
             if upsert_user_data(ctx.author.id, data):
-                await ctx.send("Added {0}'s {1} price of {2}.".format(name, op, price))
-            if op == "buy":
+                await ctx.send("Added {}'s price of {}.".format(name, price))
+            if day == "Sun":
                 self.bot._buy_prices[name] = price
                 await self.buy(ctx)
             else:

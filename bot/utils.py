@@ -23,8 +23,8 @@ def format_day(op: str, sell_time=""):
         return day + "-" + sell_time
 
 
-def format_insert_price(username: str, op: str, price: int, sell_time=""):
-    key = format_day(op, sell_time)
+def format_insert_price(username: str, day: str, price: int, sell_time: str):
+    key = day + "-" + sell_time if day != "Sun" else day
     return {"prices.{}".format(key): price, "username": username}
 
 
@@ -36,7 +36,7 @@ def format_remove_price(op: str, sell_time=""):
 def get_user_timezone(data):
     tz = (
         pytz.timezone(data["timezone"])
-        if "timezone" in data.keys()
+        if data and "timezone" in data.keys()
         else pytz.timezone(default_timezone)
     )
     return tz

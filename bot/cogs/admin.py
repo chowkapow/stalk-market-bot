@@ -3,9 +3,9 @@ import discord
 from datetime import datetime, timedelta
 from discord.ext import commands
 
-from db import get_users, upsert_user_data, remove_user_data, remove_all_data
+from db import get_user, get_users, upsert_user_data, remove_user_data, remove_all_data
 from .user import User as user
-from utils import format_insert_price, format_remove_price
+from utils import format_insert_price, format_remove_price, get_user_timezone
 
 
 class Admin(commands.Cog):
@@ -14,20 +14,23 @@ class Admin(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def admin_add(
-        self, ctx, name: str, id: int, op: str, price: int, sell_time=""
-    ):
-        sell_time = sell_time.lower()
-        data = format_insert_price(name, op, price, sell_time)
+    async def admin_add(self, ctx, name: str, id: int, price: int, sell_time=""):
+        user_data = get_user(id)
+        tz = get_user_timezone(user_data)
+        date = datetime.now(tz)
+        day = date.strftime("%a")
+        if sell_time == "":
+            sell_time = date.strftime("%p").lower()
+        data = format_insert_price(name, day, price, sell_time.upper())
         if upsert_user_data(id, data):
-            await ctx.send("Added {0}'s {1} price of {2}.".format(name, op, price))
-        if op == "buy":
+            await ctx.send("Added {}'s price of {}.".format(name, price))
+        if day == "Sun":
             self.bot._buy_prices[name] = price
             await user.buy(self, ctx)
         else:
-            if (datetime.now().hour < 12 and sell_time == "") or sell_time == "am":
+            if (date.hour < 12 and sell_time == "") or sell_time == "am":
                 self.bot._sell_morning_prices[name] = price
-            elif (datetime.now().hour >= 12 and sell_time == "") or sell_time == "pm":
+            elif (date.hour >= 12 and sell_time == "") or sell_time == "pm":
                 self.bot._sell_afternoon_prices[name] = price
             await user.sell(self, ctx)
 
