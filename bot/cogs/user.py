@@ -6,6 +6,7 @@ from operator import itemgetter
 
 from constants import (
     error_messages as em,
+    faq_message,
     help_command as hc,
     weekday_order,
 )
@@ -99,6 +100,9 @@ class User(commands.Cog):
             name=hc.get("help_name"), value=hc.get("help_value"), inline=False
         )
         embed.add_field(
+            name=hc.get("faq_name"), value=hc.get("faq_value"), inline=False
+        )
+        embed.add_field(
             name=hc.get("add_name"), value=hc.get("add_value"), inline=False
         )
         embed.add_field(
@@ -124,6 +128,13 @@ class User(commands.Cog):
         )
         embed.add_field(name=hc.get("fc_name"), value=hc.get("fc_value"), inline=False)
         embed.set_footer(text=hc.get("footer"))
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    async def faq(self, ctx):
+        embed = discord.Embed(title="FAQ", color=discord.Colour.dark_blue())
+        for key, val in faq_message.items():
+            embed.add_field(name=key, value=val, inline=False)
         await ctx.send(embed=embed)
 
     @commands.command()

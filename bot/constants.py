@@ -7,11 +7,21 @@ error_messages = {
     "no_data": "No data exists!",
 }
 
+faq_message = {
+    "1. How does this bot help me?": "This bot keeps track of your turnip prices throughout the week. It will also share your prices to help others. Yay friends!",
+    "2. How do I add my prices?": "Type __$add n__. It will add to the buy or sell (morning/afternoon) lists based on your message timestamp. (Note: If you do **not** live in Central timezone, use __$timezone__ command to set your timezone, and __$add__ will adjust accordingly.)",
+    "3. It's the afternoon already but I want to add my morning price. Can I still add it?": "Yes! Use __$add n am__ to add your price to the morning price list. Likewise, __$add n pm__ adds your afternoon price.",
+    "4. I added my prices. What next?": "Use __$trends__ to see your potential prices of the week!",
+    "5. Anything else I should know?": "You can set your friend code and island name with __$fc__ and __$island__, respectively. Then use __$info__ to share! Refer to __$help__ for all the commands.",
+}
+
 help_command = {
     "title": "Help Menu",
     "description": "I'll help you find the best prices for turnips!\nWant to contribute? [Github](https://github.com/chowkapow/stalk-market-bot)",
     "help_name": "**$help**",
     "help_value": "List commands",
+    "faq_name": "**$faq**",
+    "faq_value": "Learn how to use this bot",
     "buy_name": "**$buy**",
     "buy_value": "List buy prices only",
     "sell_name": "**$sell**",
