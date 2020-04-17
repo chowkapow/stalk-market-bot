@@ -23,7 +23,7 @@ def tiny_url(url):
     return tinyurl.decode("utf-8")
 
 
-def write_json(name, op, price, selltime, env):
+def write_json(name, op, price, sell_time, env):
     date = datetime.now()
     filename = env + "_data.json"
     data = read_json(filename)
@@ -33,8 +33,28 @@ def write_json(name, op, price, selltime, env):
         key = "Sun"
     else:
         day = date.strftime("%a")
-        selltime = date.strftime("%p") if selltime == "" else selltime.upper()
-        key = day + "-" + selltime
+        sell_time = date.strftime("%p") if sell_time == "" else sell_time.upper()
+        key = day + "-" + sell_time
     data[name][key] = price
     with open(filename, "w") as outfile:
         json.dump(data, outfile, indent=2)
+
+
+def format_day(op: str, sell_time=""):
+    if op == "buy":
+        return "Sun"
+    else:
+        date = datetime.now()
+        day = date.strftime("%a")
+        sell_time = date.strftime("%p") if sell_time == "" else sell_time.upper()
+        return day + "-" + sell_time
+
+
+def format_insert_price(nickname: str, op: str, price: int, sell_time=""):
+    key = format_day(op, sell_time)
+    return {"prices.{}".format(key): price, "nickname": nickname}
+
+
+def format_remove_price(op: str, sell_time=""):
+    key = format_day(op, sell_time)
+    return {"prices.{}".format(key): ""}

@@ -1,10 +1,10 @@
 import asyncio
-import json
 
 from datetime import datetime, timedelta
 from discord.ext import commands, tasks
 
 from constants import reset_time
+from db import remove_all_data
 
 
 class Background_Tasks(commands.Cog):
@@ -16,8 +16,9 @@ class Background_Tasks(commands.Cog):
     @tasks.loop(hours=168)
     async def reset_buy_prices(self):
         self.bot._buy_prices.clear()
-        with open(self.bot._env + "_data.json", "w") as outfile:
-            json.dump({}, outfile)
+        self.bot._sell_morning_prices.clear()
+        self.bot._sell_afternoon_prices.clear()
+        remove_all_prices({"prices": ""})
 
     @reset_buy_prices.before_loop
     async def before(self):
