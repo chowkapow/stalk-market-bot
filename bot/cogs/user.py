@@ -17,48 +17,6 @@ class User(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def help(self, ctx):
-        embed = discord.Embed(
-            title=hc.get("title"),
-            description=hc.get("description"),
-            color=discord.Colour.dark_blue(),
-        )
-        embed.add_field(
-            name=hc.get("help_name"), value=hc.get("help_value"), inline=False
-        )
-        embed.add_field(
-            name=hc.get("buy_name"), value=hc.get("buy_value"), inline=False
-        )
-        embed.add_field(
-            name=hc.get("sell_name"), value=hc.get("sell_value"), inline=False
-        )
-        embed.add_field(
-            name=hc.get("add_name"), value=hc.get("add_value"), inline=False
-        )
-        # embed.add_field(
-        #     name=hc.get("clear_name"), value=hc.get("clear_value"), inline=False
-        # )
-        embed.add_field(
-            name=hc.get("history_name"), value=hc.get("history_value"), inline=False
-        )
-        embed.add_field(
-            name=hc.get("trends_name"), value=hc.get("trends_value"), inline=False
-        )
-        embed.add_field(
-            name=hc.get("timezone_name"), value=hc.get("timezone_value"), inline=False
-        )
-        embed.add_field(
-            name=hc.get("info_name"), value=hc.get("info_value"), inline=False
-        )
-        embed.add_field(
-            name=hc.get("island_name"), value=hc.get("island_value"), inline=False
-        )
-        embed.add_field(name=hc.get("fc_name"), value=hc.get("fc_value"), inline=False)
-        embed.set_footer(text=hc.get("footer"))
-        await ctx.send(embed=embed)
-
-    @commands.command()
     async def buy(self, ctx):
         if len(self.bot._buy_prices) == 0:
             await ctx.send(em.get("empty_buy"))
@@ -80,7 +38,6 @@ class User(commands.Cog):
             embed.set_footer(text=date)
             await ctx.send(embed=embed)
 
-    @commands.command()
     async def sell(self, ctx):
         if (
             len(self.bot._sell_morning_prices) == 0
@@ -130,6 +87,52 @@ class User(commands.Cog):
                     )
             embed.set_footer(text=date)
             await ctx.send(embed=embed)
+
+    @commands.command()
+    async def help(self, ctx):
+        embed = discord.Embed(
+            title=hc.get("title"),
+            description=hc.get("description"),
+            color=discord.Colour.dark_blue(),
+        )
+        embed.add_field(
+            name=hc.get("help_name"), value=hc.get("help_value"), inline=False
+        )
+        embed.add_field(
+            name=hc.get("add_name"), value=hc.get("add_value"), inline=False
+        )
+        embed.add_field(
+            name=hc.get("today_name"), value=hc.get("today_value"), inline=False
+        )
+        # embed.add_field(
+        #     name=hc.get("clear_name"), value=hc.get("clear_value"), inline=False
+        # )
+        embed.add_field(
+            name=hc.get("history_name"), value=hc.get("history_value"), inline=False
+        )
+        embed.add_field(
+            name=hc.get("trends_name"), value=hc.get("trends_value"), inline=False
+        )
+        embed.add_field(
+            name=hc.get("timezone_name"), value=hc.get("timezone_value"), inline=False
+        )
+        embed.add_field(
+            name=hc.get("info_name"), value=hc.get("info_value"), inline=False
+        )
+        embed.add_field(
+            name=hc.get("island_name"), value=hc.get("island_value"), inline=False
+        )
+        embed.add_field(name=hc.get("fc_name"), value=hc.get("fc_value"), inline=False)
+        embed.set_footer(text=hc.get("footer"))
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    async def today(self, ctx):
+        day = datetime.now().strftime("%a")
+        if day == "Sun":
+            await self.buy(ctx)
+        else:
+            await self.sell(ctx)
 
     @commands.command()
     async def add(self, ctx, price: int, sell_time=""):

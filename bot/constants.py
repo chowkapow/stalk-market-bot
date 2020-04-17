@@ -20,6 +20,8 @@ help_command = {
     "add_value": 'Add your price with "$add buy n", "$add sell n" *(will add to morning/afternoon based on message timestamp)*, "$add sell n am", "$add sell n pm"',
     "clear_name": "**$clear**",
     "clear_value": 'Clear your prices with "$clear", "$clear buy", "$clear sell", "$clear sell am", "$clear sell pm"',
+    "today_name": "**$today**",
+    "today_value": "List today's prices",
     "history_name": "**$history**",
     "history_value": "List your buy/sell prices of the week",
     "trends_name": "**$trends**",
