@@ -10,7 +10,7 @@ error_messages = {
 
 help_command = {
     "title": "Help Menu",
-    "description": "I'll help you find the best prices for turnips!",
+    "description": "I'll help you find the best prices for turnips!\nWant to contribute? [Github](https://github.com/chowkapow/stalk-market-bot)",
     "help_name": "**$help**",
     "help_value": "List commands",
     "buy_name": "**$buy**",
