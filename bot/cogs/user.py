@@ -50,6 +50,9 @@ class User(commands.Cog):
         embed.add_field(
             name=hc.get("timezone_name"), value=hc.get("timezone_value"), inline=False
         )
+        embed.add_field(
+            name=hc.get("island_name"), value=hc.get("island_value"), inline=False
+        )
         embed.set_footer(text=hc.get("footer"))
         await ctx.send(embed=embed)
 
@@ -229,6 +232,12 @@ class User(commands.Cog):
         data = {"timezone": tz}
         upsert_user_data(ctx.author.id, data)
         await ctx.send("{}'s timezone updated to {}".format(ctx.author.name, tz))
+
+    @commands.command()
+    async def island(self, ctx, name: str):
+        data = {"island": name}
+        upsert_user_data(ctx.author.id, data)
+        await ctx.send("{}'s island updated to {}".format(ctx.author.name, name))
 
 
 def setup(bot):
