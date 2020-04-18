@@ -11,8 +11,8 @@ def get_user(id: int):
     return collection.find_one({"_id": id})
 
 
-def get_users():
-    return list(collection.find())
+def get_users(query, projection):
+    return list(collection.find(query, projection))
 
 
 def upsert_user_data(id: int, data):
@@ -25,7 +25,7 @@ def remove_user_data(id: int, data):
     return (collection.update_one({"_id": id}, {"$unset": data})).acknowledged
 
 
-def remove_all_data(data):
+def remove_users_data(data):
     return (collection.update_many({}, {"$unset": data})).acknowledged
 
 

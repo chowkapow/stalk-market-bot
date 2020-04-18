@@ -1,6 +1,6 @@
 import discord
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from discord.ext import commands
 from operator import itemgetter
 
@@ -10,84 +10,13 @@ from constants import (
     help_command as hc,
     weekday_order,
 )
-from db import get_user, upsert_user_data
-from utils import format_insert_price, get_user_timezone, tiny_url
+from db import get_user, get_users, upsert_user_data
+from utils import embed_prices, format_insert_price, get_user_date, tiny_url
 
 
 class User(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    async def buy(self, ctx):
-        if len(self.bot._buy_prices) == 0:
-            await ctx.send(em.get("empty_buy"))
-        else:
-            user_data = get_user(ctx.author.id)
-            tz = get_user_timezone(user_data)
-            date = datetime.now(tz).strftime("%B %d, %I:%M %p %Z")
-            embed = discord.Embed(title="Buy Prices", color=discord.Colour.dark_blue())
-            i = 0
-            for key, val in sorted(self.bot._buy_prices.items(), key=lambda x: x[1]):
-                i += 1
-                embed.add_field(
-                    name=key if i > 1 else "Lowest",
-                    value=val
-                    if i > 1
-                    else str("""```py\n{} - {}```""".format(key, val)),
-                    inline=True if i > 1 else False,
-                )
-            embed.set_footer(text=date)
-            await ctx.send(embed=embed)
-
-    async def sell(self, ctx):
-        if (
-            len(self.bot._sell_morning_prices) == 0
-            and len(self.bot._sell_afternoon_prices) == 0
-        ):
-            await ctx.send(em.get("empty_sell"))
-        else:
-            user_data = get_user(ctx.author.id)
-            tz = get_user_timezone(user_data)
-            date = datetime.now(tz).strftime("%B %d, %I:%M %p %Z")
-            embed = discord.Embed(title="Sell Prices", color=discord.Colour.dark_blue())
-            if len(self.bot._sell_morning_prices) > 0:
-                embed.add_field(
-                    name="\u200b", value="Sell Morning Prices", inline=False
-                )
-                i = 0
-                for key, val in sorted(
-                    self.bot._sell_morning_prices.items(),
-                    key=lambda x: x[1],
-                    reverse=True,
-                ):
-                    i += 1
-                    embed.add_field(
-                        name=key if i > 1 else "Highest",
-                        value=val
-                        if i > 1
-                        else str("""```py\n{} - {}```""".format(key, val)),
-                        inline=True if i > 1 else False,
-                    )
-            if len(self.bot._sell_afternoon_prices) > 0:
-                embed.add_field(
-                    name="\u200b", value="Sell Afternoon Prices", inline=False
-                )
-                i = 0
-                for key, val in sorted(
-                    self.bot._sell_afternoon_prices.items(),
-                    key=lambda x: x[1],
-                    reverse=True,
-                ):
-                    i += 1
-                    embed.add_field(
-                        name=key if i > 1 else "Highest",
-                        value=val
-                        if i > 1
-                        else str("""```py\n{} - {}```""".format(key, val)),
-                        inline=True if i > 1 else False,
-                    )
-            embed.set_footer(text=date)
-            await ctx.send(embed=embed)
 
     @commands.command()
     async def help(self, ctx):
@@ -139,36 +68,97 @@ class User(commands.Cog):
 
     @commands.command()
     async def today(self, ctx):
-        day = datetime.now().strftime("%a")
+        # Use default timezone
+        date = get_user_date({})
+        day = date.strftime("%a")
+        period = date.strftime("%p")
         if day == "Sun":
-            await self.buy(ctx)
+            key = day
+            buy_data = get_users(
+                {"prices.{}".format(key): {"$exists": True}},
+                {"username": 1, "prices.{}".format(key): ""},
+            )
+            if buy_data:
+                embed = discord.Embed(
+                    title="Buy Prices", color=discord.Colour.dark_blue()
+                )
+                embed = embed_prices(buy_data, key, embed, False)
+                embed.set_footer(text=date.strftime("%B %d, %I:%M %p %Z"))
+                await ctx.send(embed=embed)
+            else:
+                await ctx.send(em["empty_buy"])
         else:
-            await self.sell(ctx)
+            embed = discord.Embed(title="Sell Prices", color=discord.Colour.dark_blue())
+            if period == "AM":
+                yesterday = (date - timedelta(days=1)).strftime("%a")
+                key = yesterday + "-PM"
+                yesterday_data = get_users(
+                    {"prices.{}".format(key): {"$exists": True}},
+                    {"username": 1, "prices.{}".format(key): ""},
+                )
+                if yesterday_data:
+                    embed.add_field(
+                        name="\u200b",
+                        value="Yesterday's Afternoon Prices",
+                        inline=False,
+                    )
+                    embed = embed_prices(yesterday_data, key, embed, True)
+                key = day + "-" + period
+                morning_data = get_users(
+                    {"prices.{}".format(key): {"$exists": True}},
+                    {"username": 1, "prices.{}".format(key): ""},
+                )
+                if morning_data:
+                    embed.add_field(
+                        name="\u200b", value="Today's Morning Prices", inline=False
+                    )
+                    embed = embed_prices(morning_data, key, embed, True)
+                if yesterday_data or morning_data:
+                    embed.set_footer(text=date.strftime("%B %d, %I:%M %p %Z"))
+                    await ctx.send(embed=embed)
+                else:
+                    await ctx.send(em["empty_sell"])
+            elif period == "PM":
+                key = day + "-AM"
+                morning_data = get_users(
+                    {"prices.{}".format(key): {"$exists": True}},
+                    {"username": 1, "prices.{}".format(key): ""},
+                )
+                if morning_data:
+                    embed.add_field(
+                        name="\u200b", value="Today's Morning Prices", inline=False
+                    )
+                    embed = embed_prices(morning_data, key, embed, True)
+                key = day + "-" + period
+                afternoon_data = get_users(
+                    {"prices.{}".format(key): {"$exists": True}},
+                    {"username": 1, "prices.{}".format(key): ""},
+                )
+                if afternoon_data:
+                    embed.add_field(
+                        name="\u200b", value="Today's Afternoon Prices", inline=False
+                    )
+                    embed = embed_prices(afternoon_data, key, embed, True)
+                if morning_data or afternoon_data:
+                    embed.set_footer(text=date.strftime("%B %d, %I:%M %p %Z"))
+                    await ctx.send(embed=embed)
+                else:
+                    await ctx.send(em["empty_sell"])
 
     @commands.command()
-    async def add(self, ctx, price: int, sell_time=""):
-        if price < 0 or (sell_time != "" and sell_time != "am" and sell_time != "pm"):
+    async def add(self, ctx, price: int, period=""):
+        if price < 0 or (period != "" and period != "am" and period != "pm"):
             await ctx.send(em.get("invalid_input"))
         else:
             name = ctx.author.name
             user_data = get_user(ctx.author.id)
-            tz = get_user_timezone(user_data)
-            date = datetime.now(tz)
+            date = get_user_date(user_data)
             day = date.strftime("%a")
-            if sell_time == "":
-                sell_time = date.strftime("%p").lower()
-            data = format_insert_price(name, day, price, sell_time.upper())
+            period = date.strftime("%p") if period == "" else period.upper()
+            data = format_insert_price(name, day, price, period)
             if upsert_user_data(ctx.author.id, data):
                 await ctx.send("Added {}'s price of {}.".format(name, price))
-            if day == "Sun":
-                self.bot._buy_prices[name] = price
-                await self.buy(ctx)
-            else:
-                if (date.hour < 12 and sell_time == "") or sell_time == "am":
-                    self.bot._sell_morning_prices[name] = price
-                elif (date.hour >= 12 and sell_time == "") or sell_time == "pm":
-                    self.bot._sell_afternoon_prices[name] = price
-                await self.sell(ctx)
+                await self.today(ctx)
 
     # @commands.command(name="clear")
     # async def clearPrices(self, ctx, op: str, sell_time=""):
@@ -206,8 +196,7 @@ class User(commands.Cog):
     async def history(self, ctx):
         user_data = get_user(ctx.author.id)
         if "prices" in user_data.keys() and len(user_data["prices"]) > 0:
-            tz = get_user_timezone(user_data)
-            date = datetime.now(tz).strftime("%B %d, %I:%M %p %Z")
+            date = get_user_date(user_data)
             user = ctx.author.name
             embed = discord.Embed(
                 title=user + "'s Prices", color=discord.Colour.dark_blue()
@@ -216,7 +205,7 @@ class User(commands.Cog):
                 user_data["prices"].items(), key=lambda x: weekday_order[x[0]]
             ):
                 embed.add_field(name=key, value=val, inline=False)
-            embed.set_footer(text=date)
+            embed.set_footer(text=date.strftime("%B %d, %I:%M %p %Z"))
             await ctx.send(embed=embed)
         else:
             await ctx.send(em.get("no_data"))
