@@ -2,9 +2,14 @@ import discord
 
 from discord.ext import commands
 
-from db import get_user, get_users, upsert_user_data, remove_user_data
+from db import get_user, upsert_user_data, remove_user_data
 from .user import User as user
-from utils import format_insert_price, format_remove_price, get_user_date
+from utils import (
+    format_insert_price,
+    format_insert_server,
+    format_remove_price,
+    get_user_date,
+)
 
 
 class Admin(commands.Cog):
@@ -18,8 +23,9 @@ class Admin(commands.Cog):
         date = get_user_date(user_data)
         day = date.strftime("%a")
         period = date.strftime("%p") if period == "" else period.upper()
-        data = format_insert_price(name, day, price, period)
-        if upsert_user_data(id, data):
+        set = format_insert_price(name, day, price, period)
+        addToSet = format_insert_server(ctx.message.server)
+        if upsert_user_data(id, set, addToSet):
             await ctx.send("Added {}'s price of {}.".format(name, price))
             await user.today(self, ctx)
 

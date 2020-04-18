@@ -11,7 +11,13 @@ from constants import (
     weekday_order,
 )
 from db import get_user, get_users, upsert_user_data
-from utils import embed_prices, format_insert_price, get_user_date, tiny_url
+from utils import (
+    embed_prices,
+    format_insert_price,
+    format_insert_server,
+    get_user_date,
+    tiny_url,
+)
 
 
 class User(commands.Cog):
@@ -75,7 +81,10 @@ class User(commands.Cog):
         if day == "Sun":
             key = day
             buy_data = get_users(
-                {"prices.{}".format(key): {"$exists": True}},
+                {
+                    "prices.{}".format(key): {"$exists": True},
+                    "servers": ctx.message.guild.id,
+                },
                 {"username": 1, "prices.{}".format(key): ""},
             )
             if buy_data:
@@ -93,7 +102,10 @@ class User(commands.Cog):
                 yesterday = (date - timedelta(days=1)).strftime("%a")
                 key = yesterday + "-PM"
                 yesterday_data = get_users(
-                    {"prices.{}".format(key): {"$exists": True}},
+                    {
+                        "prices.{}".format(key): {"$exists": True},
+                        "servers": ctx.message.guild.id,
+                    },
                     {"username": 1, "prices.{}".format(key): ""},
                 )
                 if yesterday_data:
@@ -105,7 +117,10 @@ class User(commands.Cog):
                     embed = embed_prices(yesterday_data, key, embed, True)
                 key = day + "-" + period
                 morning_data = get_users(
-                    {"prices.{}".format(key): {"$exists": True}},
+                    {
+                        "prices.{}".format(key): {"$exists": True},
+                        "servers": ctx.message.guild.id,
+                    },
                     {"username": 1, "prices.{}".format(key): ""},
                 )
                 if morning_data:
@@ -121,7 +136,10 @@ class User(commands.Cog):
             elif period == "PM":
                 key = day + "-AM"
                 morning_data = get_users(
-                    {"prices.{}".format(key): {"$exists": True}},
+                    {
+                        "prices.{}".format(key): {"$exists": True},
+                        "servers": ctx.message.guild.id,
+                    },
                     {"username": 1, "prices.{}".format(key): ""},
                 )
                 if morning_data:
@@ -131,7 +149,10 @@ class User(commands.Cog):
                     embed = embed_prices(morning_data, key, embed, True)
                 key = day + "-" + period
                 afternoon_data = get_users(
-                    {"prices.{}".format(key): {"$exists": True}},
+                    {
+                        "prices.{}".format(key): {"$exists": True},
+                        "servers": ctx.message.guild.id,
+                    },
                     {"username": 1, "prices.{}".format(key): ""},
                 )
                 if afternoon_data:
@@ -155,8 +176,9 @@ class User(commands.Cog):
             date = get_user_date(user_data)
             day = date.strftime("%a")
             period = date.strftime("%p") if period == "" else period.upper()
-            data = format_insert_price(name, day, price, period)
-            if upsert_user_data(ctx.author.id, data):
+            set = format_insert_price(name, day, price, period)
+            addToSet = format_insert_server(ctx.message.guild.id)
+            if upsert_user_data(ctx.author.id, set, addToSet):
                 await ctx.send("Added {}'s price of {}.".format(name, price))
                 await self.today(ctx)
 
@@ -231,8 +253,9 @@ class User(commands.Cog):
 
     @commands.command()
     async def timezone(self, ctx, tz: str):
-        data = {"timezone": tz, "username": ctx.author.name}
-        upsert_user_data(ctx.author.id, data)
+        set = {"timezone": tz, "username": ctx.author.name}
+        addToSet = format_insert_server(ctx.message.guild.id)
+        upsert_user_data(ctx.author.id, set, addToSet)
         await ctx.send("{}'s timezone updated to {}".format(ctx.author.name, tz))
 
     @commands.command()
@@ -252,8 +275,9 @@ class User(commands.Cog):
 
     @commands.command()
     async def island(self, ctx, name: str):
-        data = {"island": name, "username": ctx.author.name}
-        upsert_user_data(ctx.author.id, data)
+        set = {"island": name, "username": ctx.author.name}
+        addToSet = format_insert_server(ctx.message.guild.id)
+        upsert_user_data(ctx.author.id, set, addToSet)
         await ctx.send("{}'s island updated to {}".format(ctx.author.name, name))
 
     @commands.command()
@@ -268,8 +292,9 @@ class User(commands.Cog):
             and friend_code[8:12].isdigit()
             and friend_code[13:17].isdigit()
         ):
-            data = {"fc": friend_code, "username": ctx.author.name}
-            upsert_user_data(ctx.author.id, data)
+            set = {"fc": friend_code, "username": ctx.author.name}
+            addToSet = format_insert_server(ctx.message.guild.id)
+            upsert_user_data(ctx.author.id, set, addToSet)
             await ctx.send(
                 "{}'s friend code updated to {}".format(ctx.author.name, friend_code)
             )

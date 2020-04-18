@@ -1,5 +1,7 @@
 import pymongo
 
+from typing import Dict
+
 conn = pymongo.MongoClient("mongodb://localhost:27017/")
 
 db = conn["stalk-market"]
@@ -15,9 +17,11 @@ def get_users(query, projection):
     return list(collection.find(query, projection))
 
 
-def upsert_user_data(id: int, data):
+def upsert_user_data(id: int, set: Dict, addToSet: Dict):
     return (
-        collection.update_one({"_id": id}, {"$set": data}, upsert=True)
+        collection.update_one(
+            {"_id": id}, {"$set": set, "$addToSet": addToSet}, upsert=True
+        )
     ).acknowledged
 
 

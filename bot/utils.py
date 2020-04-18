@@ -25,6 +25,10 @@ def format_insert_price(username: str, day: str, price: int, period: str):
     return {"prices.{}".format(key): price, "username": username}
 
 
+def format_insert_server(id):
+    return {"servers": id}
+
+
 def format_remove_price(day: str, period: str):
     key = day + "-" + period if day != "Sun" else day
     return {"prices.{}".format(key): ""}
