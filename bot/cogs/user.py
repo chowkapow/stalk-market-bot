@@ -1,4 +1,5 @@
 import discord
+import pytz
 
 from datetime import datetime, timedelta
 from discord.ext import commands
@@ -259,10 +260,13 @@ class User(commands.Cog):
 
     @commands.command()
     async def timezone(self, ctx, tz: str):
-        set = {"timezone": tz, "username": ctx.author.name}
-        addToSet = format_insert_server(ctx.message.guild.id)
-        upsert_user_data(ctx.author.id, set, addToSet)
-        await ctx.send("{}'s timezone updated to {}".format(ctx.author.name, tz))
+        if tz in pytz.all_timezones:
+            set = {"timezone": tz, "username": ctx.author.name}
+            addToSet = format_insert_server(ctx.message.guild.id)
+            upsert_user_data(ctx.author.id, set, addToSet)
+            await ctx.send("{}'s timezone updated to {}".format(ctx.author.name, tz))
+        else:
+            await ctx.send(em["invalid_input"])
 
     @commands.command()
     async def info(self, ctx, username=""):
