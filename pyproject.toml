@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "stalk-market-bot"
+version = "0.1.0"
+description = "Discord chat bot for AC:NH turnip prices"
+authors = ["Eric Chow <eric.zjp.chow@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pytz = "^2019.3"
+discord = "^1.0.1"
+pymongo = "^3.10.1"
+python-dotenv = "^0.13.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
