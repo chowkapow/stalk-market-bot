@@ -60,15 +60,8 @@ class User(commands.Cog):
             name=hc.get("trends_name"), value=hc.get("trends_value"), inline=False
         )
         embed.add_field(
-            name=hc.get("timezone_name"), value=hc.get("timezone_value"), inline=False
-        )
-        embed.add_field(
             name=hc.get("info_name"), value=hc.get("info_value"), inline=False
         )
-        embed.add_field(
-            name=hc.get("island_name"), value=hc.get("island_value"), inline=False
-        )
-        embed.add_field(name=hc.get("fc_name"), value=hc.get("fc_value"), inline=False)
         embed.add_field(
             name=hc.get("dodo_name"), value=hc.get("dodo_value"), inline=False
         )
