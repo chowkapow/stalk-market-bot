@@ -293,36 +293,62 @@ class User(commands.Cog):
             await ctx.send(em.get("no_data"))
 
     @commands.command()
-    async def island(self, ctx, name: str):
-        set = {"island": name, "username": ctx.author.name}
-        addToSet = format_insert_server(ctx.message.guild.id)
-        upsert_user_data(ctx.author.id, set, addToSet)
-        await ctx.send("{}'s island updated to {}".format(ctx.author.name, name))
-
-    @commands.command()
-    async def fc(self, ctx, friend_code: str):
-        dashes = itemgetter(2, 7, 12)(friend_code)
-        if (
-            len(friend_code) == 17
-            and friend_code[0:2] == "SW"
-            and all(d == dashes[0] for d in dashes)
-            and dashes[0] == "-"
-            and friend_code[3:7].isdigit()
-            and friend_code[8:12].isdigit()
-            and friend_code[13:17].isdigit()
-        ):
-            set = {"fc": friend_code, "username": ctx.author.name}
+    async def island(self, ctx, name=""):
+        if name == "":
+            user_data = get_user_by_id(ctx.author.id)
+            if user_data and "island" in user_data.keys():
+                await ctx.send(
+                    "{}'s island: {}".format(ctx.author.name, user_data["island"])
+                )
+            else:
+                await ctx.send(em.get("no_data"))
+        else:
+            set = {"island": name, "username": ctx.author.name}
             addToSet = format_insert_server(ctx.message.guild.id)
             upsert_user_data(ctx.author.id, set, addToSet)
-            await ctx.send(
-                "{}'s friend code updated to {}".format(ctx.author.name, friend_code)
-            )
-        else:
-            await ctx.send(em.get("invalid_input"))
+            await ctx.send("{}'s island updated to {}".format(ctx.author.name, name))
 
     @commands.command()
-    async def dodo(self, ctx, dodo_code: str):
-        if dodo_code.lower() == "clear" and remove_user_data(
+    async def fc(self, ctx, friend_code=""):
+        if friend_code == "":
+            user_data = get_user_by_id(ctx.author.id)
+            if user_data and "fc" in user_data.keys():
+                await ctx.send("{}'s fc: {}".format(ctx.author.name, user_data["fc"]))
+            else:
+                await ctx.send(em.get("no_data"))
+        else:
+            dashes = itemgetter(2, 7, 12)(friend_code)
+            if (
+                len(friend_code) == 17
+                and friend_code[0:2] == "SW"
+                and all(d == dashes[0] for d in dashes)
+                and dashes[0] == "-"
+                and friend_code[3:7].isdigit()
+                and friend_code[8:12].isdigit()
+                and friend_code[13:17].isdigit()
+            ):
+                set = {"fc": friend_code, "username": ctx.author.name}
+                addToSet = format_insert_server(ctx.message.guild.id)
+                upsert_user_data(ctx.author.id, set, addToSet)
+                await ctx.send(
+                    "{}'s friend code updated to {}".format(
+                        ctx.author.name, friend_code
+                    )
+                )
+            else:
+                await ctx.send(em.get("invalid_input"))
+
+    @commands.command()
+    async def dodo(self, ctx, dodo_code=""):
+        if dodo_code == "":
+            user_data = get_user_by_id(ctx.author.id)
+            if user_data and "dodo" in user_data.keys():
+                await ctx.send(
+                    "{}'s dodo code: {}".format(ctx.author.name, user_data["dodo"])
+                )
+            else:
+                await ctx.send(em.get("no_data"))
+        elif dodo_code.lower() == "clear" and remove_user_data(
             ctx.author.id, {"dodo": ""}
         ):
             await ctx.send("Cleared {}'s dodo code".format(ctx.author.name))

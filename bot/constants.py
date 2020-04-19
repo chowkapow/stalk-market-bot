@@ -12,7 +12,7 @@ faq_message = {
     "2. How do I add my prices?": "Type __$add n__. It will add to the buy or sell (morning/afternoon) lists based on your message timestamp. (Note: If you do **not** live in Central timezone, use __$timezone__ command to set your timezone, and __$add__ will adjust accordingly.)",
     "3. It's the afternoon already but I want to add my morning price. Can I still add it?": "Yes! Use __$add n am__ to add your price to the morning price list. Likewise, __$add n pm__ adds your afternoon price.",
     "4. I added my prices. What next?": "Use __$trends__ to see your potential prices of the week!",
-    "5. Anything else I should know?": "You can set your friend code, island name, or dodo code with __$fc__, __$island__, __$dodo__ respectively. Then use __$info__ to share! Refer to __$help__ for all the commands.",
+    "5. Anything else I should know?": "You can set your friend code, island name, or dodo code with __$fc__, __$island__, __$dodo__ respectively. Then you can use any of the commands again to share, or use __$info__ to share everything! Refer to __$help__ for all the commands.",
 }
 
 help_command = {
