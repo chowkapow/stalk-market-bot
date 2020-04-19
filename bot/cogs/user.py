@@ -10,7 +10,7 @@ from constants import (
     help_command as hc,
     weekday_order,
 )
-from db import get_user, get_users, upsert_user_data
+from db import get_user_by_id, get_user_by_username, get_users, upsert_user_data
 from utils import (
     embed_prices,
     format_insert_price,
@@ -172,7 +172,7 @@ class User(commands.Cog):
             await ctx.send(em.get("invalid_input"))
         else:
             name = ctx.author.name
-            user_data = get_user(ctx.author.id)
+            user_data = get_user_by_id(ctx.author.id)
             date = get_user_date(user_data)
             day = date.strftime("%a")
             period = date.strftime("%p") if period == "" else period.upper()
@@ -216,7 +216,7 @@ class User(commands.Cog):
 
     @commands.command()
     async def history(self, ctx):
-        user_data = get_user(ctx.author.id)
+        user_data = get_user_by_id(ctx.author.id)
         if "prices" in user_data.keys() and len(user_data["prices"]) > 0:
             date = get_user_date(user_data)
             user = ctx.author.name
@@ -234,7 +234,7 @@ class User(commands.Cog):
 
     @commands.command()
     async def trends(self, ctx):
-        user_data = get_user(ctx.author.id)
+        user_data = get_user_by_id(ctx.author.id)
         if "prices" in user_data.keys() and len(user_data["prices"]) > 0:
             prices = ""
             missing_days = set(weekday_order.keys()) - set(user_data["prices"].keys())
@@ -259,11 +259,15 @@ class User(commands.Cog):
         await ctx.send("{}'s timezone updated to {}".format(ctx.author.name, tz))
 
     @commands.command()
-    async def info(self, ctx):
-        user_data = get_user(ctx.author.id)
+    async def info(self, ctx, username=""):
+        if username == "":
+            user_data = get_user_by_id(ctx.author.id)
+        else:
+            user_data = get_user_by_username(username, ctx.message.guild.id)
         if user_data and ("fc" in user_data.keys() or "island" in user_data.keys()):
             embed = discord.Embed(
-                title=ctx.author.name + "'s Info", color=discord.Colour.dark_blue()
+                title=user_data["username"] + "'s Info",
+                color=discord.Colour.dark_blue(),
             )
             if "fc" in user_data.keys():
                 embed.add_field(name="Friend Code", value=user_data["fc"], inline=False)

@@ -2,7 +2,7 @@ import discord
 
 from discord.ext import commands
 
-from db import get_user, upsert_user_data, remove_user_data
+from db import get_user_by_id, upsert_user_data, remove_user_data
 from .user import User as user
 from utils import (
     format_insert_price,
@@ -19,7 +19,7 @@ class Admin(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def admin_add(self, ctx, name: str, id: int, price: int, period=""):
-        user_data = get_user(id)
+        user_data = get_user_by_id(id)
         date = get_user_date(user_data)
         day = date.strftime("%a")
         period = date.strftime("%p") if period == "" else period.upper()
@@ -32,7 +32,7 @@ class Admin(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def admin_remove(self, ctx, name: str, id: int, op: str, period=""):
-        user_data = get_user(id)
+        user_data = get_user_by_id(id)
         date = get_user_date(user_data)
         day = date.strftime("%a")
         period = period.upper()

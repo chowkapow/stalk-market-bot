@@ -9,8 +9,12 @@ db = conn["stalk-market"]
 collection = db["users"]
 
 
-def get_user(id: int):
+def get_user_by_id(id: int):
     return collection.find_one({"_id": id})
+
+
+def get_user_by_username(username: str, server_id: int):
+    return collection.find_one({"username": username, "servers": server_id})
 
 
 def get_users(query, projection):

@@ -39,7 +39,7 @@ help_command = {
     "timezone_name": "**$timezone**",
     "timezone_value": "Find your timezone [here](https://gist.github.com/heyalexej/8bf688fd67d7199be4a1682b3eec7568) and type __$timezone (timezone)__. Default is America/Chicago",
     "info_name": "**$info**",
-    "info_value": "Share your friend code and/or island name to others",
+    "info_value": "Share your friend code and/or island name for others, or type __$info (username)__ to see their info",
     "island_name": "**$island**",
     "island_value": 'Set your island name. If the name has spaces use quotes, e.g. __$island "island name"__',
     "fc_name": "**$fc**",
