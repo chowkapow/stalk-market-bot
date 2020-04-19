@@ -1,3 +1,24 @@
+bells = """
+```\n
++-------+---------+
+| Price | Bells   |
++-------+---------+
+| 90    | 360,000 |
++-------+---------+
+| 91    | 364,000 |
++-------+---------+
+| 92    | 368,000 |
++-------+---------+
+| 93    | 372,000 |
++-------+---------+
+| 94    | 376,000 |
++-------+---------+
+| 95    | 380,000 |
++-------+---------+
+ Prices go 90-110
+```
+"""
+
 default_timezone = "America/Chicago"
 
 error_messages = {
@@ -46,6 +67,8 @@ help_command = {
     "fc_value": "Set your friend code, e.g. __$fc SW-####-####-####__",
     "dodo_name": "**$dodo**",
     "dodo_value": "Set your dodo code or clear with __$dodo clear__. Resets daily",
+    "bells_name": "**$bells**",
+    "bells_value": "See how much bells you need to bring for a full haul (assumes fully upgraded inventory)",
     "footer": "Feedback welcome. Contact chowkapow#4085",
 }
 

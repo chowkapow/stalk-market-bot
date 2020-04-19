@@ -5,6 +5,7 @@ from discord.ext import commands
 from operator import itemgetter
 
 from constants import (
+    bells,
     error_messages as em,
     faq_message,
     help_command as hc,
@@ -70,6 +71,9 @@ class User(commands.Cog):
         embed.add_field(name=hc.get("fc_name"), value=hc.get("fc_value"), inline=False)
         embed.add_field(
             name=hc.get("dodo_name"), value=hc.get("dodo_value"), inline=False
+        )
+        embed.add_field(
+            name=hc.get("bells_name"), value=hc.get("bells_value"), inline=False
         )
         embed.set_footer(text=hc.get("footer"))
         await ctx.send(embed=embed)
@@ -361,6 +365,10 @@ class User(commands.Cog):
             )
         else:
             await ctx.send(em.get("invalid_input"))
+
+    @commands.command()
+    async def bells(self, ctx):
+        await ctx.send(bells)
 
 
 def setup(bot):
