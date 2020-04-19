@@ -10,7 +10,13 @@ from constants import (
     help_command as hc,
     weekday_order,
 )
-from db import get_user_by_id, get_user_by_username, get_users, upsert_user_data
+from db import (
+    get_user_by_id,
+    get_user_by_username,
+    get_users,
+    upsert_user_data,
+    remove_user_data,
+)
 from utils import (
     embed_prices,
     format_insert_price,
@@ -62,6 +68,9 @@ class User(commands.Cog):
             name=hc.get("island_name"), value=hc.get("island_value"), inline=False
         )
         embed.add_field(name=hc.get("fc_name"), value=hc.get("fc_value"), inline=False)
+        embed.add_field(
+            name=hc.get("dodo_name"), value=hc.get("dodo_value"), inline=False
+        )
         embed.set_footer(text=hc.get("footer"))
         await ctx.send(embed=embed)
 
@@ -264,7 +273,11 @@ class User(commands.Cog):
             user_data = get_user_by_id(ctx.author.id)
         else:
             user_data = get_user_by_username(username, ctx.message.guild.id)
-        if user_data and ("fc" in user_data.keys() or "island" in user_data.keys()):
+        if user_data and (
+            "fc" in user_data.keys()
+            or "island" in user_data.keys()
+            or "dodo" in user_data.keys()
+        ):
             embed = discord.Embed(
                 title=user_data["username"] + "'s Info",
                 color=discord.Colour.dark_blue(),
@@ -273,6 +286,8 @@ class User(commands.Cog):
                 embed.add_field(name="Friend Code", value=user_data["fc"], inline=False)
             if "island" in user_data.keys():
                 embed.add_field(name="Island", value=user_data["island"], inline=False)
+            if "dodo" in user_data.keys():
+                embed.add_field(name="Dodo Code", value=user_data["dodo"], inline=False)
             await ctx.send(embed=embed)
         else:
             await ctx.send(em.get("no_data"))
@@ -301,6 +316,22 @@ class User(commands.Cog):
             upsert_user_data(ctx.author.id, set, addToSet)
             await ctx.send(
                 "{}'s friend code updated to {}".format(ctx.author.name, friend_code)
+            )
+        else:
+            await ctx.send(em.get("invalid_input"))
+
+    @commands.command()
+    async def dodo(self, ctx, dodo_code: str):
+        if dodo_code.lower() == "clear" and remove_user_data(
+            ctx.author.id, {"dodo": ""}
+        ):
+            await ctx.send("Cleared {}'s dodo code".format(ctx.author.name))
+        elif len(dodo_code) == 5:
+            set = {"dodo": dodo_code, "username": ctx.author.name}
+            addToSet = format_insert_server(ctx.message.guild.id)
+            upsert_user_data(ctx.author.id, set, addToSet)
+            await ctx.send(
+                "{}'s dodo code updated to {}".format(ctx.author.name, dodo_code)
             )
         else:
             await ctx.send(em.get("invalid_input"))
