@@ -3,7 +3,7 @@ import asyncio
 from datetime import datetime, timedelta
 from discord.ext import commands, tasks
 
-from db import remove_users_data
+from db import remove_users_data, rename_users_data
 
 
 class Background_Tasks(commands.Cog):
@@ -15,6 +15,7 @@ class Background_Tasks(commands.Cog):
     @tasks.loop(hours=168)
     async def reset_prices(self):
         remove_users_data({"prices": ""})
+        rename_users_data({"nextPattern": "pattern"})
 
     @reset_prices.before_loop
     async def before(self):

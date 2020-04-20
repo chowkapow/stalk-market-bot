@@ -10,6 +10,8 @@ from constants import (
     error_messages as em,
     faq_message,
     help_command as hc,
+    patterns,
+    patterns_names,
     weekday_order,
 )
 from db import (
@@ -59,6 +61,9 @@ class User(commands.Cog):
         )
         embed.add_field(
             name=hc.get("trends_name"), value=hc.get("trends_value"), inline=False
+        )
+        embed.add_field(
+            name=hc.get("pattern_name"), value=hc.get("pattern_value"), inline=False
         )
         embed.add_field(
             name=hc.get("info_name"), value=hc.get("info_value"), inline=False
@@ -234,6 +239,18 @@ class User(commands.Cog):
                 user_data["prices"].items(), key=lambda x: weekday_order[x[0]]
             ):
                 embed.add_field(name=key, value=val, inline=False)
+            if "pattern" in user_data.keys():
+                embed.add_field(
+                    name="Pattern",
+                    value=patterns_names[user_data["pattern"]],
+                    inline=False,
+                )
+            if "nextPattern" in user_data.keys():
+                embed.add_field(
+                    name="Next week's pattern",
+                    value=patterns_names[user_data["nextPattern"]],
+                    inline=False,
+                )
             embed.set_footer(text=date.strftime("%B %d, %I:%M %p %Z"))
             await ctx.send(embed=embed)
         else:
@@ -252,11 +269,33 @@ class User(commands.Cog):
             ):
                 prices += str(val) + "."
             url = "https://turnipprophet.io/index.html?prices={}".format(prices)
+            if "pattern" in user_data.keys():
+                url += "&pattern=" + str(patterns[user_data["pattern"]])
             await ctx.send(
                 "{}'s trends here: {}".format(ctx.author.name, tiny_url(url))
             )
         else:
             await ctx.send(em.get("no_data"))
+
+    @commands.command()
+    async def pattern(self, ctx, pattern: str, next=""):
+        pattern = pattern.lower()
+        if pattern in patterns.keys():
+            if next == "":
+                set = {"pattern": pattern, "username": ctx.author.name}
+                msg = ""
+            else:
+                set = {"nextPattern": pattern, "username": ctx.author.name}
+                msg = "for next week "
+            addToSet = format_insert_server(ctx.message.guild.id)
+            if upsert_user_data(ctx.author.id, set, addToSet):
+                await ctx.send(
+                    "{}'s pattern {}updated to {}".format(
+                        ctx.author.name, msg, patterns_names[pattern]
+                    )
+                )
+        else:
+            await ctx.send(em.get("invalid_input"))
 
     @commands.command()
     async def timezone(self, ctx, tz: str):

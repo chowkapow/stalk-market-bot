@@ -38,7 +38,8 @@ faq_message = {
     "2. How do I add my prices?": "Type __$add n__. It will add to the buy or sell (morning/afternoon) lists based on your message timestamp. (Note: If you do **not** live in Central timezone, use __$timezone__ command to set your timezone, and __$add__ will adjust accordingly.)",
     "3. It's the afternoon already but I want to add my morning price. Can I still add it?": "Yes! Use __$add n am__ to add your price to the morning price list. Likewise, __$add n pm__ adds your afternoon price.",
     "4. I added my prices. What next?": "Use __$trends__ to see your potential prices of the week!",
-    "5. Anything else I should know?": "You can set your friend code, island name, or dodo code with __$fc__, __$island__, __$dodo__ respectively. Then you can use any of the commands again to share, or use __$info__ to share everything! Refer to __$help__ for all the commands.",
+    "5. I already cashed out selling my turnips. Why should I still add my prices?": "With __$trends__, you can figure out what your price pattern is. This pattern affects your **NEXT** week's prices! Use __$pattern pattern next__ to add your pattern and __$trends__ will adjust accordingly next week.",
+    "6. Anything else I should know?": "You can set your friend code, island name, or dodo code with __$fc__, __$island__, __$dodo__ respectively. Then you can use any of the commands again to share, or use __$info__ to share everything! Refer to __$help__ for all the commands.",
 }
 
 help_command = {
@@ -62,6 +63,8 @@ help_command = {
     "history_value": "List your buy/sell prices of the week",
     "trends_name": "**$trends**",
     "trends_value": "See the trends for your prices via [turnipprophet.io](https://turnipprophet.io)\n**DISCLAIMER**: Site not written by me",
+    "pattern_name": "**$pattern**",
+    "pattern_value": "Set your pattern from LAST week to improve accuracy for $trends: fl (fluctuating), ss (small spike) , ls (large spike), d (decreasing), e.g. __$pattern fl__. Or use __$pattern pattern next__ to set next week's pattern",
     "info_name": "**$info**",
     "info_value": "Share your friend code, island name, and/or dodo code, or type __$info username__ to see his/her info. See $faq for setup",
     "dodo_name": "**$dodo**",
@@ -69,6 +72,20 @@ help_command = {
     "bells_name": "**$bells**",
     "bells_value": "See how much bells you need to bring for a full haul (assumes fully upgraded inventory)",
     "footer": "Feedback welcome. Contact chowkapow#4085",
+}
+
+patterns = {
+    "fl": 0,
+    "ls": 1,
+    "d": 2,
+    "ss": 3,
+}
+
+patterns_names = {
+    "fl": "fluctuating",
+    "ls": "large spike",
+    "d": "decreasing",
+    "ss": "small spike",
 }
 
 weekday_order = {

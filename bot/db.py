@@ -29,6 +29,10 @@ def upsert_user_data(id: int, set: Dict, addToSet: Dict):
     ).acknowledged
 
 
+def rename_users_data(data: Dict):
+    return (collection.update_many({}, {"$rename": data})).acknowledged
+
+
 def remove_user_data(id: int, data):
     return (collection.update_one({"_id": id}, {"$unset": data})).acknowledged
 
