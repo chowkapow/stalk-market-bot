@@ -193,38 +193,7 @@ class User(commands.Cog):
             if upsert_user_data(ctx.author.id, set, addToSet):
                 await ctx.send("Added {}'s price of {}.".format(name, price))
                 await self.today(ctx)
-
-    # @commands.command(name="clear")
-    # async def clearPrices(self, ctx, op: str, sell_time=""):
-    #     if (op != "" and op != "buy" and op != "sell") or (
-    #         sell_time != "" and sell_time != "am" and sell_time != "pm"
-    #     ):
-    #         await ctx.send(em.get("invalid_input"))
-    #     else:
-    #         name = ctx.author.name
-    #         user_data = get_user(ctx.author.id)
-    #         tz = get_user_timezone(user_data)
-    #         date = datetime.now(tz)
-    #         data = format_remove_price(op, sell_time)
-    #         remove_user_data(ctx.author.id, data)
-    #         if op == "buy":
-    #             self.bot._buy_prices.pop(ctx.author.name, None)
-    #             await ctx.send("Cleared {}'s buy price.".format(name))
-    #         else:
-    #             if sell_time == "am":
-    #                 self.bot._sell_morning_prices.pop(name, None)
-    #                 await ctx.send("Cleared {}'s sell morning price.".format(name))
-    #             elif sell_time == "pm":
-    #                 self.bot._sell_afternoon_prices.pop(name, None)
-    #                 await ctx.send("Cleared {}'s sell afternoon price.".format(name))
-    #             else:
-    #                 other_sell_time = "am" if date.strftime("%p") == "PM" else "pm"
-    #                 remove_user_data(
-    #                     ctx.author.id, format_remove_price(op, other_sell_time)
-    #                 )
-    #                 self.bot._sell_morning_prices.pop(name, None)
-    #                 self.bot._sell_afternoon_prices.pop(name, None)
-    #                 await ctx.send("Cleared {}'s sell prices.".format(name))
+                await self.trends(ctx)
 
     @commands.command()
     async def history(self, ctx):
@@ -241,13 +210,13 @@ class User(commands.Cog):
                 embed.add_field(name=key, value=val, inline=False)
             if "pattern" in user_data.keys():
                 embed.add_field(
-                    name="Pattern",
+                    name="Last week's pattern",
                     value=patterns_names[user_data["pattern"]],
                     inline=False,
                 )
             if "nextPattern" in user_data.keys():
                 embed.add_field(
-                    name="Next week's pattern",
+                    name="This week's pattern",
                     value=patterns_names[user_data["nextPattern"]],
                     inline=False,
                 )

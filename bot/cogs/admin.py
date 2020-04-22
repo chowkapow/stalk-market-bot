@@ -28,6 +28,7 @@ class Admin(commands.Cog):
         if upsert_user_data(id, set, addToSet):
             await ctx.send("Added {}'s price of {}.".format(name, price))
             await user.today(self, ctx)
+            await user.trends(self, ctx)
 
     @commands.command()
     @commands.is_owner()
@@ -44,10 +45,6 @@ class Admin(commands.Cog):
         data = format_remove_price(day, period)
         if remove_user_data(id, data):
             await ctx.send("Cleared {}'s {} price".format(name, op))
-
-    # @bot.event
-    # async def on_command_error(ctx, error):
-    #     await ctx.send("Invalid input - please try again.")
 
 
 def setup(bot):
