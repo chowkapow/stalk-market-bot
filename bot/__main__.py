@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 env = "prod" if len(sys.argv) == 1 else "dev"
 # Logging
 logger = logging.getLogger("discord")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 handler = logging.FileHandler(
     filename=env + "-stalk-market-bot.log", encoding="utf-8", mode="w"
 )

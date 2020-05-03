@@ -107,7 +107,7 @@ class User(commands.Cog):
                 embed.set_footer(text=date.strftime("%B %d, %I:%M %p %Z"))
                 await ctx.send(embed=embed)
             else:
-                await ctx.send(em["empty_buy"])
+                await ctx.send(em.get("empty_buy"))
         else:
             embed = discord.Embed(title="Sell Prices", color=discord.Colour.dark_blue())
             if period == "AM":
@@ -144,7 +144,7 @@ class User(commands.Cog):
                     embed.set_footer(text=date.strftime("%B %d, %I:%M %p %Z"))
                     await ctx.send(embed=embed)
                 else:
-                    await ctx.send(em["empty_sell"])
+                    await ctx.send(em.get("empty_sell"))
             elif period == "PM":
                 key = day + "-AM"
                 morning_data = get_users(
@@ -176,7 +176,7 @@ class User(commands.Cog):
                     embed.set_footer(text=date.strftime("%B %d, %I:%M %p %Z"))
                     await ctx.send(embed=embed)
                 else:
-                    await ctx.send(em["empty_sell"])
+                    await ctx.send(em.get("empty_sell"))
 
     @commands.command()
     async def add(self, ctx, price: int, period=""):
@@ -274,7 +274,7 @@ class User(commands.Cog):
             upsert_user_data(ctx.author.id, set, addToSet)
             await ctx.send("{}'s timezone updated to {}".format(ctx.author.name, tz))
         else:
-            await ctx.send(em["invalid_input"])
+            await ctx.send(em.get("invalid_input"))
 
     @commands.command()
     async def info(self, ctx, username=""):

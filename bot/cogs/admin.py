@@ -24,7 +24,7 @@ class Admin(commands.Cog):
         day = date.strftime("%a")
         period = date.strftime("%p") if period == "" else period.upper()
         set = format_insert_price(name, day, price, period)
-        addToSet = format_insert_server(ctx.message.server)
+        addToSet = format_insert_server(ctx.message.guild.id)
         if upsert_user_data(id, set, addToSet):
             await ctx.send("Added {}'s price of {}.".format(name, price))
             await user.today(self, ctx)
