@@ -50,7 +50,7 @@ help_command = {
     "faq_name": "**$faq**",
     "faq_value": "Setup and learn how to use this bot",
     "add_name": "**$add**",
-    "add_value": "Add your price with __$add n__, or __$add n am__ and __$add n pm__. See $faq if you are not in Central timezone",
+    "add_value": "Add your price with __$add n__, or __$add n am__ and __$add n pm__. See $faq if you are not in Central timezone. Resets on Sunday",
     "today_name": "**$today**",
     "today_value": "List today's prices",
     "history_name": "**$history**",
@@ -65,7 +65,7 @@ help_command = {
     "dodo_value": "Set your dodo code or clear with __$dodo clear__. Resets daily",
     "bells_name": "**$bells**",
     "bells_value": "See how much bells you need to bring for a full haul (assumes fully upgraded inventory)",
-    "footer": "Feedback welcome. Contact chowkapow#4085",
+    "footer": "Feedback and bug reports welcome. Contact chowkapow#4085",
 }
 
 patterns = {

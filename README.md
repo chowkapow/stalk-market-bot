@@ -12,22 +12,25 @@ Add your turnip prices via the bot commands to share with your friends. Find the
 # Bot commands
 
 ```
-Help Menu
-I'll help you find the best prices for turnips!
 $help
 List commands
-$buy
-List buy prices only
-$sell
-List sell prices only
+$faq
+Setup and learn how to use this bot
 $add
-Add your price with "$add buy n", "$add sell n", "$add sell n am", "$add sell n pm"
-$clear
-Clear your prices with "$clear", "$clear buy", "$clear sell", "$clear sell am", "$clear sell pm"
+Add your price with $add n, or $add n am and $add n pm. See $faq if you are not in Central timezone. Resets on Sunday
+$today
+List today's prices
 $history
 List your buy/sell prices of the week
 $trends
 See the trends for your prices via turnipprophet.io
-Site not written by me
-Feedback welcome. Contact chowkapow#4085
+DISCLAIMER: Site not written by me
+$pattern
+Set your pattern from LAST week to improve accuracy for $trends: fl (fluctuating), ss (small spike) , ls (large spike), d (decreasing), e.g. $pattern fl. Or use $pattern fl next to record this week's pattern, which will be used for next week's trends
+$info
+Share your friend code, island name, and/or dodo code, or type $info username to see his/her info. See $faq for setup
+$dodo
+Set your dodo code or clear with $dodo clear. Resets daily
+$bells
+See how much bells you need to bring for a full haul (assumes fully upgraded inventory)
 ```
