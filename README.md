@@ -34,3 +34,8 @@ Set your dodo code or clear with $dodo clear. Resets daily
 $bells
 See how much bells you need to bring for a full haul (assumes fully upgraded inventory)
 ```
+
+# Sample Pics
+<img src="https://user-images.githubusercontent.com/6621087/95362330-8c2e6e80-0893-11eb-9c89-b1494a35867b.png" width="20%" height="20%">
+<img src="https://user-images.githubusercontent.com/6621087/95362909-62c21280-0894-11eb-8d12-2a1a18997c27.png" width="20%" height="20%">
+
